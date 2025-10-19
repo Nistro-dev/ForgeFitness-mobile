@@ -1,0 +1,27 @@
+# Node / pnpm
+node_modules
+pnpm-lock.yaml
+
+# macOS
+.DS_Store
+
+# Android/Gradle
+**/build
+**/.gradle
+local.properties
+
+# Xcode
+**/DerivedData
+**/*.xcuserdatad
+
+# IDE
+.vscode
+.idea
+
+# Docker
+infra/*/data
+
+# Environment
+.env
+.env.local
+backend/.env

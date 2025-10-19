@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "baseUrl": ".",
+    "paths": {
+      "@config": ["src/config/index.ts"],
+      "@config/*": ["src/config/*"],
+
+      "@core": ["src/core/index.ts"],
+      "@core/*": ["src/core/*"],
+
+      "@domain": ["src/domain/index.ts"],
+      "@domain/*": ["src/domain/*"],
+
+      "@app": ["src/application/index.ts"],
+      "@app/*": ["src/application/*"],
+
+      "@infra": ["src/infrastructure/index.ts"],
+      "@infra/*": ["src/infrastructure/*"],
+
+      "@if": ["src/interface/index.ts"],
+      "@if/*": ["src/interface/*"],
+
+      "@di": ["src/di/index.ts"],
+      "@di/*": ["src/di/*"]
+    }
+  },
+  "include": ["src"]
+}

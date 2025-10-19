@@ -1,0 +1,26 @@
+version: "3.9"
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: forge
+    ports: [ "5432:5432" ]
+    volumes: [ "pgdata:/var/lib/postgresql/data" ]
+
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports: [ "9000:9000", "9001:9001" ]
+    volumes: [ "minio:/data" ]
+
+  maildev:
+    image: maildev/maildev
+    ports: [ "1080:1080", "1025:1025" ]
+
+volumes:
+  pgdata:
+  minio:

@@ -1,0 +1,153 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  MEMBER
+  COACH
+  ADMIN
+}
+
+enum BookingStatus {
+  BOOKED
+  CANCELED
+  DONE
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  CANCELED
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String?  @unique
+  fullName  String?
+  role      Role     @default(MEMBER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deviceId  String?  @unique
+
+  // relations
+  programs      Program[]
+  bookings      Booking[]       @relation("UserBookings") // en tant que membre
+  coachBookings Booking[]       @relation("CoachBookings") // en tant que coach
+  orders        Order[]
+  credit        CreditAccount?
+  ActivationKey ActivationKey[]
+}
+
+model ActivationKey {
+  id        String    @id @default(cuid())
+  code      String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  user      User?     @relation(fields: [userId], references: [id])
+  userId    String?
+}
+
+model Program {
+  id        String        @id @default(cuid())
+  user      User          @relation(fields: [userId], references: [id])
+  userId    String
+  title     String
+  items     ProgramItem[]
+  updatedAt DateTime      @updatedAt
+  createdAt DateTime      @default(now())
+
+  @@index([userId])
+}
+
+model ProgramItem {
+  id        String  @id @default(cuid())
+  program   Program @relation(fields: [programId], references: [id])
+  programId String
+  machineId String
+  name      String
+  sets      Int
+  reps      Int
+  weight    Float?
+  restSec   Int?
+  videoUrl  String?
+  notes     String?
+
+  @@index([programId])
+}
+
+model Booking {
+  id        String        @id @default(cuid())
+  member    User          @relation("UserBookings", fields: [memberId], references: [id])
+  memberId  String
+  coach     User          @relation("CoachBookings", fields: [coachId], references: [id])
+  coachId   String
+  startAt   DateTime
+  endAt     DateTime
+  status    BookingStatus @default(BOOKED)
+  createdAt DateTime      @default(now())
+
+  @@index([memberId])
+  @@index([coachId])
+  @@index([startAt])
+}
+
+model Product {
+  id         String      @id @default(cuid())
+  name       String
+  category   String // whey | collagene | clothes | accessories | partner
+  priceCents Int
+  vatPercent Int
+  active     Boolean     @default(true)
+  OrderItem  OrderItem[]
+}
+
+model Order {
+  id         String      @id @default(cuid())
+  user       User        @relation(fields: [userId], references: [id])
+  userId     String
+  status     OrderStatus @default(PENDING)
+  totalCents Int
+  createdAt  DateTime    @default(now())
+  items      OrderItem[]
+  stripeId   String?
+  invoiceUrl String?
+
+  @@index([userId])
+}
+
+model OrderItem {
+  id             String  @id @default(cuid())
+  order          Order   @relation(fields: [orderId], references: [id])
+  orderId        String
+  product        Product @relation(fields: [productId], references: [id])
+  productId      String
+  qty            Int
+  unitPriceCents Int
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+model CreditAccount {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String   @unique
+  balance   Int      @default(0) // 1 crédit = 1h coaching
+  updatedAt DateTime @updatedAt
+}
+
+model Log {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  payload   Json?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+}
