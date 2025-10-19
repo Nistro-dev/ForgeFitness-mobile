@@ -17,7 +17,6 @@ export function httpErrorHandler(
     return;
   }
 
-  // Zod validation
   if ((error as any)?.issues && (error as any)?.name === 'ZodError') {
     reply.status(400).send({
       error: {

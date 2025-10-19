@@ -10,6 +10,5 @@ export async function diPlugin(app: FastifyInstance) {
     strictBooleanEnforced: false,
   });
 
-  // Optionnel : vérifier que le container est bien là
   app.log.info(`DI ready with registrations: ${Object.keys((app as any).diContainer.registrations).length}`);
 }

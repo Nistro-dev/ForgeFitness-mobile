@@ -13,7 +13,6 @@ export class IssueActivationKeyUseCase {
   ) {}
 
   async exec({ email, fullName, role }: Input): Promise<void> {
-    // upsert simple
     let user = await this.users.findByEmail(email);
     if (!user) {
       user = await this.users.create({ email, fullName, role: role as any });

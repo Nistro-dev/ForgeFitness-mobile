@@ -27,7 +27,6 @@ export class ActivateWithKeyUseCase {
       throw new UnauthorizedError('INVALID_OR_EXPIRED');
     }
 
-    // 1 appareil : si deviceId déjà lié à qqn d'autre → refuse
     const existing = await this.users.findByDeviceId(deviceId);
     if (existing && existing.id !== key.userId) {
       throw new AppError('DEVICE_ALREADY_BOUND', 'DEVICE_ALREADY_BOUND', 400);
