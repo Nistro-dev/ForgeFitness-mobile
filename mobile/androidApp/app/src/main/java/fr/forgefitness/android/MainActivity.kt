@@ -65,7 +65,6 @@ fun HomeScreen() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text("🏋️ ForgeFitness", style = MaterialTheme.typography.headlineLarge)
         Spacer(Modifier.height(24.dp))
         Text(greeting, style = MaterialTheme.typography.bodyLarge)
         Spacer(Modifier.height(32.dp))
