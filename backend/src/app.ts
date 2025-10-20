@@ -10,7 +10,10 @@ export async function buildApp() {
   await securityPlugins(app);
   await diPlugin(app);
 
-  app.get('/health', async () => ({ ok: true, ts: Date.now() }));
+  app.get('/health', async () => ({
+    status: 'ok',
+    timestamp: new Date().toISOString()
+  }));
 
   await authRoutes(app);
 

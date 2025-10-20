@@ -6,13 +6,46 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		9951F4A02EA6E9060041A60B /* shared.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9951F4912EA6E1C10041A60B /* shared.xcframework */; };
+		9951F4A12EA6E9060041A60B /* shared.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9951F4912EA6E1C10041A60B /* shared.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		9951F4A22EA6E9060041A60B /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				9951F4A12EA6E9060041A60B /* shared.xcframework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		9951F4822EA6D2E50041A60B /* iosApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iosApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9951F4912EA6E1C10041A60B /* shared.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = shared.xcframework; path = ../androidApp/shared/build/XCFrameworks/release/shared.xcframework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		9951F4962EA6E4810041A60B /* Exceptions for "iosApp" folder in "iosApp" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 9951F4812EA6D2E50041A60B /* iosApp */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		9951F4842EA6D2E50041A60B /* iosApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				9951F4962EA6E4810041A60B /* Exceptions for "iosApp" folder in "iosApp" target */,
+			);
 			path = iosApp;
 			sourceTree = "<group>";
 		};
@@ -23,6 +56,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9951F4A02EA6E9060041A60B /* shared.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -33,6 +67,7 @@
 			isa = PBXGroup;
 			children = (
 				9951F4842EA6D2E50041A60B /* iosApp */,
+				9951F4902EA6E1C10041A60B /* Frameworks */,
 				9951F4832EA6D2E50041A60B /* Products */,
 			);
 			sourceTree = "<group>";
@@ -45,6 +80,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		9951F4902EA6E1C10041A60B /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				9951F4912EA6E1C10041A60B /* shared.xcframework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -55,6 +98,7 @@
 				9951F47E2EA6D2E50041A60B /* Sources */,
 				9951F47F2EA6D2E50041A60B /* Frameworks */,
 				9951F4802EA6D2E50041A60B /* Resources */,
+				9951F4A22EA6E9060041A60B /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -256,6 +300,7 @@
 				DEVELOPMENT_TEAM = X28LMPVA9P;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = iosApp/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -284,6 +329,7 @@
 				DEVELOPMENT_TEAM = X28LMPVA9P;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = iosApp/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

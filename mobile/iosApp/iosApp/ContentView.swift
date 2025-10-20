@@ -1,24 +1,20 @@
-//
-//  ContentView.swift
-//  iosApp
-//
-//  Created by Maël MICHAUD on 20/10/2025.
-//
-
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject var bridge = KMMBridge()
+
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        VStack(spacing: 16) {
+            Text("🏋️ ForgeFitness").font(.largeTitle)
+            if let s = bridge.status {
+                Text("✅ Backend : \(s)")
+            } else if let e = bridge.error {
+                Text("❌ Erreur : \(e)")	
+            } else {
+                ProgressView()
+            }
         }
+        .onAppear { bridge.loadHealth() }
         .padding()
     }
-}
-
-#Preview {
-    ContentView()
 }
