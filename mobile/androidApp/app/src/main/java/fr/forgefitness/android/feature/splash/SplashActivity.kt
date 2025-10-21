@@ -16,16 +16,14 @@ import fr.forgefitness.android.R
 
 class SplashActivity : ComponentActivity() {
 
-    // mêmes valeurs que sur iOS
-    private val scaleFactor = 2.0f          // idem SwiftUI
-    private val fadeInDur  = 450L           // ms
+    private val scaleFactor = 2.0f
+    private val fadeInDur  = 450L
     private val holdAfter  = 250L
     private val fadeOutDur = 550L
     private val popIn      = 1.05f
     private val popOut     = 0.93f
     private val startScale = 0.94f
 
-    // bezier équivalents aux easings iOS
     private val easeOut   = PathInterpolator(0.0f, 0.0f, 0.2f, 1f)
     private val easeInOut = PathInterpolator(0.4f, 0f, 0.2f, 1f)
 
@@ -38,7 +36,6 @@ class SplashActivity : ComponentActivity() {
         val logo = findViewById<LottieAnimationView>(R.id.lottie_logo)
         val root = findViewById<View>(R.id.splash_root)
 
-        // responsive: même formule que iOS (0.9 * min * scaleFactor)
         root.post {
             val side = (minOf(root.width, root.height) * 0.9f * scaleFactor).toInt()
             logo.layoutParams.width = side
@@ -50,7 +47,6 @@ class SplashActivity : ComponentActivity() {
         logo.scaleY = startScale
         logo.alpha = 0f
 
-        // fade-in + pop-in (identique iOS)
         val fadeIn = ObjectAnimator.ofFloat(logo, View.ALPHA, 0f, 1f).apply {
             duration = fadeInDur
             interpolator = easeOut
@@ -64,7 +60,6 @@ class SplashActivity : ComponentActivity() {
             interpolator = easeOut
         }
 
-        // petit “settle” vers 1.0 (spring-like)
         val settleX = ObjectAnimator.ofFloat(logo, View.SCALE_X, 1.0f).apply {
             duration = 500
             startDelay = (fadeInDur * 0.6f).toLong()
@@ -88,7 +83,6 @@ class SplashActivity : ComponentActivity() {
             }
         })
 
-        // quand la Lottie se termine : pop-out + fade-out (comme iOS)
         logo.addAnimatorListener(object : Animator.AnimatorListener {
             override fun onAnimationStart(animation: Animator) {}
             override fun onAnimationCancel(animation: Animator) {}

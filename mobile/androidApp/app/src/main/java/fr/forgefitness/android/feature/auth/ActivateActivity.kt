@@ -107,10 +107,8 @@ class ActivateActivity : AppCompatActivity() {
 
     private fun setupCodeBoxes() {
         for (i in boxes.indices) {
-            // 🔒 Filtre matériel : 1 caractère maximum
             boxes[i].filters = arrayOf(InputFilter.LengthFilter(1))
 
-            // Backspace: revenir à la case précédente si vide
             boxes[i].setOnKeyListener { _, keyCode, event ->
                 if (keyCode == KeyEvent.KEYCODE_DEL && event.action == KeyEvent.ACTION_DOWN) {
                     if (boxes[i].text.isNullOrEmpty() && i > 0) {
@@ -131,7 +129,6 @@ class ActivateActivity : AppCompatActivity() {
                     val cleaned = raw.filter { it.isLetterOrDigit() }.uppercase()
 
                     when {
-                        // Saisie normale: 1 caractère → case suivante
                         cleaned.length == 1 -> {
                             if (raw != cleaned) {
                                 boxes[i].setText(cleaned)
@@ -139,7 +136,6 @@ class ActivateActivity : AppCompatActivity() {
                             }
                             if (i < boxes.lastIndex) boxes[i + 1].requestFocus()
                         }
-                        // Effacement → case précédente
                         cleaned.isEmpty() && i > 0 -> boxes[i - 1].requestFocus()
                     }
                 }
@@ -149,7 +145,6 @@ class ActivateActivity : AppCompatActivity() {
 
     private fun setupValidateButton() {
         btnValidate.setOnClickListener {
-            // Ignore les clics pendant le chargement
             if (vm.ui.value.loading) return@setOnClickListener
             
             val code = boxes.joinToString("") { it.text.toString().trim() }
@@ -162,20 +157,16 @@ class ActivateActivity : AppCompatActivity() {
         lifecycleScope.launchWhenStarted {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 vm.ui.collect { state ->
-                    // Freeze le bouton pendant le chargement (pas de loader)
                     btnValidate.isEnabled = !state.loading
                     btnValidate.alpha = if (state.loading) 0.6f else 1f
                     btnValidate.isClickable = !state.loading
 
-                    // Affiche ou masque le message d'erreur
                     errorText.isVisible = state.error != null
                     errorText.text = state.error ?: ""
 
-                    // Navigation si succès
                     if (state.done) {
                         startActivity(
                             Intent(this@ActivateActivity, MainActivity::class.java).apply {
-                                // Nettoie la pile pour éviter retour sur Activate
                                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
                             }
                         )

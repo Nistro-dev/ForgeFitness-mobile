@@ -34,19 +34,16 @@ class ApiClient(
 
         val raw = try { resp.bodyAsText() } catch (_: Throwable) { "<no-body>" }
 
-        // Log propre (println pour commonMain, visible dans Logcat sur Android)
         println("ForgeFitness/Network: POST /auth/activate -> ${resp.status.value} ${resp.status.description}. body=$raw")
 
         if (resp.status.isSuccess()) {
             return json.decodeFromString(ActivateResponse.serializer(), raw)
         } else {
-            // Essaie de parser l'enveloppe d'erreur connue
             val env = runCatching {
                 json.decodeFromString(ErrorEnvelope.serializer(), raw)
             }.getOrNull()
 
             if (env != null) {
-                // apiCode = message (INVALID_KEY), httpCode = code (BAD_REQUEST)
                 throw ApiError(apiCode = env.error.message, httpCode = env.error.code, message = env.error.message)
             } else {
                 throw ApiError(apiCode = "HTTP_${resp.status.value}", httpCode = resp.status.toString(), message = raw)
@@ -63,6 +60,5 @@ data class HealthStatus(
     val timestamp: String? = null
 )
 
-// Enveloppe d'erreur du backend
 @Serializable data class ErrorEnvelope(val error: ErrorBody)
 @Serializable data class ErrorBody(val code: String, val message: String)

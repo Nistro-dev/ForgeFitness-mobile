@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Pressed ripple -->
     <item android:state_pressed="true" android:color="#1FFFFFFF"/>
-    <!-- Focused ripple -->
     <item android:state_focused="true" android:color="#14FFFFFF"/>
-    <!-- Default ripple -->
     <item android:color="#10FFFFFF"/>
 </selector>

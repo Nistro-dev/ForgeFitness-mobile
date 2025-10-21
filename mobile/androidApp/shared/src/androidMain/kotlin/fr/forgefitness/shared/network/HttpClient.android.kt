@@ -16,12 +16,11 @@ actual fun createHttpClient(): HttpClient {
     }
 
     return HttpClient(Android) {
-        expectSuccess = false   // ⬅️ Ne pas jeter automatiquement sur erreur HTTP
+        expectSuccess = false
 
         install(ContentNegotiation) { json(json) }
 
         install(Logging) {
-            // Logcat lisible : tag "Ktor"
             logger = object : Logger {
                 override fun log(message: String) {
                     android.util.Log.d("Ktor", message)

@@ -61,7 +61,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginBottom="24dp">
 
-            <!-- Box 1 -->
             <EditText
                 android:id="@+id/et_1"
                 style="@style/CodeBox"
@@ -75,7 +74,6 @@
                 app:layout_constraintEnd_toStartOf="@id/et_2"
                 app:layout_constraintHorizontal_weight="1"/>
 
-            <!-- Box 2 -->
             <EditText
                 android:id="@+id/et_2"
                 style="@style/CodeBox"
@@ -89,7 +87,6 @@
                 app:layout_constraintEnd_toStartOf="@id/et_3"
                 app:layout_constraintHorizontal_weight="1"/>
 
-            <!-- Box 3 -->
             <EditText
                 android:id="@+id/et_3"
                 style="@style/CodeBox"
@@ -103,7 +100,6 @@
                 app:layout_constraintEnd_toStartOf="@id/et_4"
                 app:layout_constraintHorizontal_weight="1"/>
 
-            <!-- Box 4 -->
             <EditText
                 android:id="@+id/et_4"
                 style="@style/CodeBox"
@@ -117,7 +113,6 @@
                 app:layout_constraintEnd_toStartOf="@id/et_5"
                 app:layout_constraintHorizontal_weight="1"/>
 
-            <!-- Box 5 -->
             <EditText
                 android:id="@+id/et_5"
                 style="@style/CodeBox"
@@ -131,7 +126,6 @@
                 app:layout_constraintEnd_toStartOf="@id/et_6"
                 app:layout_constraintHorizontal_weight="1"/>
 
-            <!-- Box 6 -->
             <EditText
                 android:id="@+id/et_6"
                 style="@style/CodeBox"
