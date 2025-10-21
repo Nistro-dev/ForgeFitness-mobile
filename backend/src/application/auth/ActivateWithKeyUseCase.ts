@@ -1,61 +1,89 @@
-import { ActivationKeyRepo } from '@domain/ports/ActivationKeyRepo';
-import { UserRepo } from '@domain/ports/UserRepo';
-import { AppError, UnauthorizedError } from '@core/errors';
+import { AppError } from '@core';
+import { ActivationKeyRepo, DeviceRepo, SessionRepo, UserRepo } from '@domain';
+import { addDays, isAfter } from 'date-fns';
 import jwt from 'jsonwebtoken';
 import { env } from '@config';
 
-type Input = { code: string; deviceId: string };
+type Input = {
+  email: string;
+  key: string;
+  device: {
+    deviceId: string;
+    platform: 'IOS' | 'ANDROID';
+    model?: string;
+    osVersion?: string;
+    appVersion?: string;
+  };
+};
+
 type Output = {
   token: string;
+  expiresAt: string;
   user: {
     id: string;
-    email?: string | null;
-    fullName?: string | null;
-    role: string;
+    email: string;
+    firstName: string;
+    lastName: string;
   };
 };
 
 export class ActivateWithKeyUseCase {
   constructor(
-    private users: UserRepo,
-    private keys: ActivationKeyRepo
+    private userRepo: UserRepo,
+    private activationKeyRepo: ActivationKeyRepo,
+    private sessionRepo: SessionRepo,
+    private deviceRepo: DeviceRepo,
   ) {}
 
-  async exec({ code, deviceId }: Input): Promise<Output> {
-    const key = await this.keys.findByCode(code);
-    if (!key || key.usedAt || key.expiresAt < new Date() || !key.userId) {
-      throw new UnauthorizedError('INVALID_OR_EXPIRED');
+  async execute(input: Input): Promise<Output> {
+    const user = await this.userRepo.findByEmail(input.email);
+    if (!user) throw AppError.badRequest('USER_NOT_FOUND');
+
+    const ak = await this.activationKeyRepo.findActiveByUserId(user.id);
+    if (!ak || ak.key !== input.key) throw AppError.badRequest('INVALID_KEY');
+
+    const now = new Date();
+    if (isAfter(now, ak.expiresAt)) {
+      await this.activationKeyRepo.invalidate(ak.id, 'EXPIRED');
+      throw AppError.badRequest('KEY_EXPIRED');
     }
 
-    const existing = await this.users.findByDeviceId(deviceId);
-    if (existing && existing.id !== key.userId) {
-      throw new AppError('DEVICE_ALREADY_BOUND', 'DEVICE_ALREADY_BOUND', 400);
-    }
+    await this.activationKeyRepo.markUsed(ak.id);
 
-    await this.users.bindDevice(key.userId, deviceId);
-    await this.keys.markUsed(code);
+    const device = await this.deviceRepo.upsertForUser({
+      userId: user.id,
+      deviceId: input.device.deviceId,
+      platform: input.device.platform,
+      model: input.device.model,
+      osVersion: input.device.osVersion,
+      appVersion: input.device.appVersion,
+    });
 
-    const user = await this.users.findByEmail(
-      (await this.users.findByDeviceId(deviceId))?.email ?? ''
-    );
-    if (!user) {
-      throw new AppError('USER_NOT_FOUND', 'USER_NOT_FOUND', 404);
-    }
+    await this.sessionRepo.revokeAllForUser(user.id);
+    const sessionTtlDays = 30;
+    const session = await this.sessionRepo.create({
+      userId: user.id,
+      deviceId: device.id,
+      expiresAt: addDays(now, sessionTtlDays),
+    });
+
+    await this.userRepo.updateCurrentPointers({
+      userId: user.id,
+      deviceId: device.id,
+      sessionId: session.id,
+      activationKeyId: ak.id,
+    });
 
     const token = jwt.sign(
-      { sub: user.id, role: user.role, deviceId },
+      { sub: user.id, sid: session.id },
       env.JWT_SECRET,
-      { expiresIn: '180d' }
+      { expiresIn: `${sessionTtlDays}d`, issuer: 'forge-fitness' },
     );
 
     return {
       token,
-      user: {
-        id: user.id,
-        email: user.email,
-        fullName: user.fullName,
-        role: user.role,
-      },
+      expiresAt: addDays(now, sessionTtlDays).toISOString(),
+      user: { id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName },
     };
   }
 }

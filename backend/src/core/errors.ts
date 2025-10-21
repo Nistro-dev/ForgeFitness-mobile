@@ -7,6 +7,10 @@ export class AppError extends Error {
   ) {
     super(message);
   }
+
+  static badRequest(message: string, details?: unknown): AppError {
+    return new AppError(message, 'BAD_REQUEST', 400, details);
+  }
 }
 
 export class NotFoundError extends AppError {

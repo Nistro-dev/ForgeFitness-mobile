@@ -1,16 +1,28 @@
-import { Role } from '@prisma/client';
-
-export interface UserDTO {
-  id: string;
-  email?: string | null;
-  fullName?: string | null;
-  role: Role;
-  deviceId?: string | null;
-}
+import { User } from "@prisma/client";
 
 export interface UserRepo {
-  findByEmail(email: string): Promise<UserDTO | null>;
-  findByDeviceId(deviceId: string): Promise<UserDTO | null>;
-  create(data: { email?: string; fullName?: string; role: Role }): Promise<UserDTO>;
-  bindDevice(userId: string, deviceId: string): Promise<void>;
+  findByEmail(email: string): Promise<User | null>;
+
+  create(data: {
+    email: string;
+    firstName: string;
+    lastName: string;
+  }): Promise<User>;
+
+  updateNames(
+    userId: string,
+    names: { firstName: string; lastName: string }
+  ): Promise<void>;
+
+  setCurrentActivationKey(
+    userId: string,
+    activationKeyId: string | null
+  ): Promise<void>;
+
+  updateCurrentPointers(params: {
+    userId: string;
+    deviceId?: string | null;
+    sessionId?: string | null;
+    activationKeyId?: string | null;
+  }): Promise<void>;
 }

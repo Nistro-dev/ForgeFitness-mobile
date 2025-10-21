@@ -1,12 +1,23 @@
 import { z } from 'zod';
 
-export const IssueKeyDto = z.object({
+export const IssueKeyBody = z.object({
   email: z.string().email(),
-  fullName: z.string().min(1),
-  role: z.enum(['MEMBER', 'COACH', 'ADMIN']).default('MEMBER'),
+  firstName: z.string().min(1),
+  lastName: z.string().min(1),
 });
 
-export const ActivateDto = z.object({
-  code: z.string().min(6),
-  deviceId: z.string().min(6),
+export type IssueKeyBody = z.infer<typeof IssueKeyBody>;
+
+export const ActivateBody = z.object({
+  email: z.string().email(),
+  key: z.string().min(6).max(32),
+  device: z.object({
+    deviceId: z.string().min(4),
+    platform: z.enum(['IOS', 'ANDROID']),
+    model: z.string().optional(),
+    osVersion: z.string().optional(),
+    appVersion: z.string().optional(),
+  }),
 });
+
+export type ActivateBody = z.infer<typeof ActivateBody>;

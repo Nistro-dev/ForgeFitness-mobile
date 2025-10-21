@@ -1,13 +1,17 @@
-export interface ActivationKey {
-  id: string;
-  code: string;
-  expiresAt: Date;
-  usedAt?: Date | null;
-  userId?: string | null;
-}
+import { ActivationKey } from "@prisma/client";
 
 export interface ActivationKeyRepo {
-  createForUser(userId: string, code: string, expiresAt: Date): Promise<void>;
-  findByCode(code: string): Promise<ActivationKey | null>;
-  markUsed(code: string): Promise<void>;
+  create(data: {
+    userId: string;
+    key: string;
+    expiresAt: Date;
+  }): Promise<ActivationKey>;
+
+  invalidateActiveForUser(userId: string): Promise<void>;
+
+  findActiveByUserId(userId: string): Promise<ActivationKey | null>;
+
+  invalidate(id: string, reason: string): Promise<void>;
+
+  markUsed(id: string): Promise<void>;
 }

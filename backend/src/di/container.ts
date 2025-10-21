@@ -1,20 +1,23 @@
-import { createContainer, asClass } from 'awilix';
-import { UserRepoPrisma } from '@infra/prisma/UserRepoPrisma';
-import { ActivationKeyRepoPrisma } from '@infra/prisma/ActivationKeyRepoPrisma';
-import { NodemailerMailer } from '@infra/mail/NodemailerMailer';
-import { IssueActivationKeyUseCase } from '@app/auth/IssueActivationKeyUseCase';
 import { ActivateWithKeyUseCase } from '@app/auth/ActivateWithKeyUseCase';
-import { AuthController } from '@if/http/controllers/auth.controller';
+import { IssueActivationKeyUseCase } from '@app/auth/IssueActivationKeyUseCase';
+import { ActivationKeyRepoPrisma, DeviceRepoPrisma, NodemailerMailer, SessionRepoPrisma, UserRepoPrisma } from '@infra';
+import { asClass, createContainer, InjectionMode } from 'awilix';
 
-export const container = createContainer({ injectionMode: 'CLASSIC' });
+export const makeContainer = () => {
+  const container = createContainer({
+    injectionMode: InjectionMode.CLASSIC,
+  });
 
-container.register({
-  users: asClass(UserRepoPrisma).singleton(),
-  keys: asClass(ActivationKeyRepoPrisma).singleton(),
-  mailer: asClass(NodemailerMailer).singleton(),
+  container.register({
+    userRepo: asClass(UserRepoPrisma).singleton(),
+    activationKeyRepo: asClass(ActivationKeyRepoPrisma).singleton(),
+    sessionRepo: asClass(SessionRepoPrisma).singleton(),
+    deviceRepo: asClass(DeviceRepoPrisma).singleton(),
+    mailer: asClass(NodemailerMailer).singleton(),
 
-  issueActivationKeyUseCase: asClass(IssueActivationKeyUseCase).singleton(),
-  activateWithKeyUseCase: asClass(ActivateWithKeyUseCase).singleton(),
+    issueActivationKeyUseCase: asClass(IssueActivationKeyUseCase).scoped(),
+    activateWithKeyUseCase: asClass(ActivateWithKeyUseCase).scoped(),
+  });
 
-  authController: asClass(AuthController).singleton(),
-});
+  return container;
+};

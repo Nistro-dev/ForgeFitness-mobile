@@ -1,21 +1,49 @@
-import { ActivationKeyRepo, ActivationKey } from '@domain/ports/ActivationKeyRepo';
 import { prisma } from './client';
+import type { ActivationKeyRepo } from '../../domain/ports/ActivationKeyRepo';
 
 export class ActivationKeyRepoPrisma implements ActivationKeyRepo {
-  async createForUser(userId: string, code: string, expiresAt: Date): Promise<void> {
-    await prisma.activationKey.create({
-      data: { userId, code, expiresAt },
+  async invalidateActiveForUser(userId: string) {
+    await prisma.activationKey.updateMany({
+      where: {
+        userId,
+        usedAt: null,
+        expiresAt: { gt: new Date() },
+      },
+      data: { usedAt: new Date() },
+    })
+  }
+
+  async create(data: { userId: string; key: string; expiresAt: Date }) {
+    return prisma.activationKey.create({
+      data: {
+        userId: data.userId,
+        key: data.key,
+        expiresAt: data.expiresAt,
+      },
+    })
+  }
+
+  async findActiveByUserId(userId: string) {
+    return prisma.activationKey.findFirst({
+      where: {
+        userId,
+        usedAt: null,
+        expiresAt: { gte: new Date() },
+      },
+      orderBy: { createdAt: 'desc' },
     });
   }
 
-  async findByCode(code: string): Promise<ActivationKey | null> {
-    const k = await prisma.activationKey.findUnique({ where: { code } });
-    return k ? ({ ...k } as ActivationKey) : null;
+  async invalidate(id: string, reason: string) {
+    await prisma.activationKey.update({
+      where: { id },
+      data: { usedAt: new Date() },
+    });
   }
 
-  async markUsed(code: string): Promise<void> {
+  async markUsed(id: string) {
     await prisma.activationKey.update({
-      where: { code },
+      where: { id },
       data: { usedAt: new Date() },
     });
   }

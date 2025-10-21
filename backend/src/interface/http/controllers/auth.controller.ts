@@ -1,23 +1,20 @@
-import { FastifyRequest, FastifyReply } from 'fastify';
-import { IssueKeyDto, ActivateDto } from '@if/dtos/auth.dto';
-import { IssueActivationKeyUseCase } from '@app/auth/IssueActivationKeyUseCase';
-import { ActivateWithKeyUseCase } from '@app/auth/ActivateWithKeyUseCase';
+import { ActivateBody, IssueKeyBody } from '@if/dtos/auth.dto';
+import { FastifyInstance } from 'fastify';
+import { IssueActivationKeyUseCase } from '../../../application/auth/IssueActivationKeyUseCase';
+import { ActivateWithKeyUseCase } from '../../../application/auth/ActivateWithKeyUseCase';
 
-export class AuthController {
-  constructor(
-    private issueActivationKeyUseCase: IssueActivationKeyUseCase,
-    private activateWithKeyUseCase: ActivateWithKeyUseCase
-  ) {}
+export const authController = (app: FastifyInstance) => ({
+  issueKey: async (req: any, reply: any) => {
+    const body = IssueKeyBody.parse(req.body);
+    const uc = app.diContainer.resolve<IssueActivationKeyUseCase>('issueActivationKeyUseCase');
+    const result = await uc.execute(body);
+    return reply.code(200).send(result);
+  },
 
-  issue = async (req: FastifyRequest, rep: FastifyReply) => {
-    const input = IssueKeyDto.parse(req.body);
-    await this.issueActivationKeyUseCase.exec(input);
-    return rep.send({ ok: true });
-  }
-
-  activateWithKey = async (req: FastifyRequest, rep: FastifyReply) => {
-    const input = ActivateDto.parse(req.body);
-    const out = await this.activateWithKeyUseCase.exec(input);
-    return rep.send(out);
-  }
-}
+  activate: async (req: any, reply: any) => {
+    const body = ActivateBody.parse(req.body);
+    const uc = app.diContainer.resolve<ActivateWithKeyUseCase>('activateWithKeyUseCase');
+    const result = await uc.execute(body);
+    return reply.code(200).send(result);
+  },
+});

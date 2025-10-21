@@ -3,13 +3,21 @@ import { z } from 'zod';
 
 const EnvSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
-  PORT: z.string().default('3001'),
+  PORT: z.coerce.number().default(3001),
+
   DATABASE_URL: z.string().url(),
+
   JWT_SECRET: z.string().min(16),
+
   MAIL_SMTP_HOST: z.string(),
   MAIL_SMTP_PORT: z.coerce.number().default(587),
   MAIL_SMTP_USER: z.string().optional(),
   MAIL_SMTP_PASS: z.string().optional(),
+
+  APP_NAME: z.string().default('Forge Fitness'),
+  MAIL_FROM: z.string().min(3),
+  ACTIVATION_KEY_TTL_MIN: z.coerce.number().default(60),
+
   S3_ENDPOINT: z.string().url().optional(),
   S3_BUCKET: z.string().optional(),
   S3_ACCESS_KEY: z.string().optional(),

@@ -1,153 +1,98 @@
-generator client {
-  provider = "prisma-client-js"
-}
-
+// ------------------------------------------------------------------
+// Datasource & Generator
+// ------------------------------------------------------------------
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  MEMBER
-  COACH
-  ADMIN
+generator client {
+  provider = "prisma-client-js"
 }
 
-enum BookingStatus {
-  BOOKED
-  CANCELED
-  DONE
+// ------------------------------------------------------------------
+// Enums
+// ------------------------------------------------------------------
+enum Platform {
+  ANDROID
+  IOS
 }
 
-enum OrderStatus {
-  PENDING
-  PAID
-  CANCELED
-}
+// ------------------------------------------------------------------
+// Models
+// ------------------------------------------------------------------
 
 model User {
   id        String   @id @default(cuid())
-  email     String?  @unique
-  fullName  String?
-  role      Role     @default(MEMBER)
+  email     String   @unique
+  firstName String
+  lastName  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  deviceId  String?  @unique
 
-  // relations
-  programs      Program[]
-  bookings      Booking[]       @relation("UserBookings") // en tant que membre
-  coachBookings Booking[]       @relation("CoachBookings") // en tant que coach
-  orders        Order[]
-  credit        CreditAccount?
-  ActivationKey ActivationKey[]
+  currentActivationKeyId String? @unique
+  currentDeviceId        String? @unique
+  currentSessionId       String? @unique
+
+  currentActivationKey ActivationKey? @relation("UserCurrentActivationKey", fields: [currentActivationKeyId], references: [id], onDelete: SetNull)
+  currentDevice        Device?        @relation("UserCurrentDevice", fields: [currentDeviceId], references: [id], onDelete: SetNull)
+  currentSession       Session?       @relation("UserCurrentSession", fields: [currentSessionId], references: [id], onDelete: SetNull)
+
+  activationKeys ActivationKey[] @relation("UserActivationKeys")
+  devices        Device[]        @relation("UserDevices")
+  sessions       Session[]       @relation("UserSessions")
 }
 
 model ActivationKey {
   id        String    @id @default(cuid())
-  code      String    @unique
+  userId    String
+  key       String    @unique
   expiresAt DateTime
   usedAt    DateTime?
-  user      User?     @relation(fields: [userId], references: [id])
-  userId    String?
-}
+  createdAt DateTime  @default(now())
 
-model Program {
-  id        String        @id @default(cuid())
-  user      User          @relation(fields: [userId], references: [id])
-  userId    String
-  title     String
-  items     ProgramItem[]
-  updatedAt DateTime      @updatedAt
-  createdAt DateTime      @default(now())
+  user User @relation("UserActivationKeys", fields: [userId], references: [id], onDelete: Cascade)
+
+  userCurrentFor User? @relation("UserCurrentActivationKey")
 
   @@index([userId])
+  @@index([expiresAt])
 }
 
-model ProgramItem {
-  id        String  @id @default(cuid())
-  program   Program @relation(fields: [programId], references: [id])
-  programId String
-  machineId String
-  name      String
-  sets      Int
-  reps      Int
-  weight    Float?
-  restSec   Int?
-  videoUrl  String?
-  notes     String?
-
-  @@index([programId])
-}
-
-model Booking {
-  id        String        @id @default(cuid())
-  member    User          @relation("UserBookings", fields: [memberId], references: [id])
-  memberId  String
-  coach     User          @relation("CoachBookings", fields: [coachId], references: [id])
-  coachId   String
-  startAt   DateTime
-  endAt     DateTime
-  status    BookingStatus @default(BOOKED)
-  createdAt DateTime      @default(now())
-
-  @@index([memberId])
-  @@index([coachId])
-  @@index([startAt])
-}
-
-model Product {
-  id         String      @id @default(cuid())
-  name       String
-  category   String // whey | collagene | clothes | accessories | partner
-  priceCents Int
-  vatPercent Int
-  active     Boolean     @default(true)
-  OrderItem  OrderItem[]
-}
-
-model Order {
-  id         String      @id @default(cuid())
-  user       User        @relation(fields: [userId], references: [id])
+model Device {
+  id         String    @id @default(cuid())
   userId     String
-  status     OrderStatus @default(PENDING)
-  totalCents Int
-  createdAt  DateTime    @default(now())
-  items      OrderItem[]
-  stripeId   String?
-  invoiceUrl String?
+  deviceUid  String
+  platform   Platform
+  model      String?
+  appVersion String?
+  lastSeenAt DateTime  @default(now())
+  createdAt  DateTime  @default(now())
+  revokedAt  DateTime?
 
+  user User @relation("UserDevices", fields: [userId], references: [id], onDelete: Cascade)
+
+  sessions Session[] @relation("DeviceSessions")
+
+  userCurrentFor User? @relation("UserCurrentDevice")
+
+  @@unique([userId, deviceUid])
   @@index([userId])
 }
 
-model OrderItem {
-  id             String  @id @default(cuid())
-  order          Order   @relation(fields: [orderId], references: [id])
-  orderId        String
-  product        Product @relation(fields: [productId], references: [id])
-  productId      String
-  qty            Int
-  unitPriceCents Int
+model Session {
+  id         String    @id @default(cuid())
+  userId     String
+  deviceId   String?
+  expiresAt  DateTime
+  createdAt  DateTime  @default(now())
+  revokedAt  DateTime?
 
-  @@index([orderId])
-  @@index([productId])
-}
+  user   User    @relation("UserSessions", fields: [userId], references: [id], onDelete: Cascade)
+  device Device? @relation("DeviceSessions", fields: [deviceId], references: [id], onDelete: Cascade)
 
-model CreditAccount {
-  id        String   @id @default(cuid())
-  user      User     @relation(fields: [userId], references: [id])
-  userId    String   @unique
-  balance   Int      @default(0) // 1 crédit = 1h coaching
-  updatedAt DateTime @updatedAt
-}
-
-model Log {
-  id        String   @id @default(cuid())
-  userId    String?
-  action    String
-  payload   Json?
-  createdAt DateTime @default(now())
+  userCurrentFor User? @relation("UserCurrentSession")
 
   @@index([userId])
-  @@index([createdAt])
+  @@index([deviceId])
 }

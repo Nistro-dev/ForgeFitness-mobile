@@ -1,27 +1,51 @@
-import { UserRepo, UserDTO } from '@domain/ports/UserRepo';
+import { UserRepo } from '@domain';
 import { prisma } from './client';
-import { Role } from '@prisma/client';
 
 export class UserRepoPrisma implements UserRepo {
-  async findByEmail(email: string): Promise<UserDTO | null> {
-    const u = await prisma.user.findUnique({ where: { email } });
-    return u ? { ...u } : null;
+  async findByEmail(email: string) {
+    return prisma.user.findUnique({ where: { email } });
   }
 
-  async findByDeviceId(deviceId: string): Promise<UserDTO | null> {
-    const u = await prisma.user.findFirst({ where: { deviceId } });
-    return u ? { ...u } : null;
+  async create(data: { email: string; firstName: string; lastName: string }) {
+    return prisma.user.create({
+      data: {
+        email: data.email,
+        firstName: data.firstName,
+        lastName: data.lastName,
+      },
+    });
   }
 
-  async create(data: { email?: string; fullName?: string; role: Role }): Promise<UserDTO> {
-    const u = await prisma.user.create({ data });
-    return { ...u };
-  }
-
-  async bindDevice(userId: string, deviceId: string): Promise<void> {
+  async updateNames(userId: string, names: { firstName: string; lastName: string }) {
     await prisma.user.update({
       where: { id: userId },
-      data: { deviceId },
+      data: {
+        firstName: names.firstName,
+        lastName: names.lastName,
+      },
+    });
+  }
+
+  async setCurrentActivationKey(userId: string, activationKeyId: string | null) {
+    await prisma.user.update({
+      where: { id: userId },
+      data: { currentActivationKeyId: activationKeyId },
+    });
+  }
+
+  async updateCurrentPointers(params: {
+    userId: string;
+    deviceId?: string | null;
+    sessionId?: string | null;
+    activationKeyId?: string | null;
+  }) {
+    await prisma.user.update({
+      where: { id: params.userId },
+      data: {
+        currentDeviceId: params.deviceId ?? undefined,
+        currentSessionId: params.sessionId ?? undefined,
+        currentActivationKeyId: params.activationKeyId ?? undefined,
+      },
     });
   }
 }

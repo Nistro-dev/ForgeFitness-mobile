@@ -1,10 +1,10 @@
 import { FastifyInstance } from 'fastify';
 import { fastifyAwilixPlugin } from '@fastify/awilix';
-import { container } from '@di/container';
+import { makeContainer } from '@di/container';
 
 export async function diPlugin(app: FastifyInstance) {
   await app.register(fastifyAwilixPlugin, {
-    container,
+    container: makeContainer(),
     disposeOnClose: true,
     disposeOnResponse: false,
     strictBooleanEnforced: false,

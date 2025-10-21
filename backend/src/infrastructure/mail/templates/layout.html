@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="fr" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8">
+  <meta name="x-apple-disable-message-reformatting">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{subject}}</title>
+  <style>
+    /* Reset */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    img { border: 0; display: block; max-width: 100%; }
+    a { text-decoration: none; }
+    table { border-collapse: collapse; }
+
+    /* Design System */
+    body {
+      background: linear-gradient(135deg, #0F0F0F 0%, #1A1A1A 100%);
+      color: #FFFFFF;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .container {
+      width: 100%;
+      background: linear-gradient(135deg, #0F0F0F 0%, #1A1A1A 100%);
+      padding: 48px 20px;
+    }
+
+    .card {
+      max-width: 800px;
+      margin: 0 auto;
+      background: linear-gradient(180deg, #1C1C1C 0%, #161616 100%);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(201, 152, 74, 0.15);
+    }
+
+    .content {
+      padding: 48px 40px;
+      background: #1A1A1A;
+      border-radius: 16px 16px 0 0;
+    }
+
+    .sep {
+      height: 1px;
+      background: linear-gradient(90deg, transparent 0%, rgba(201, 152, 74, 0.3) 50%, transparent 100%);
+      margin: 40px 0;
+    }
+
+    .accent { color: #C9984A; font-weight: 700; }
+
+    /* Code box (si tu l'utilises dans {{content}}) */
+    .code-box {
+      font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Monaco, Consolas, monospace;
+      font-size: 42px;
+      font-weight: 900;
+      letter-spacing: 10px;
+      text-align: center;
+      padding: 32px 28px;
+      border-radius: 12px;
+      margin: 40px auto;
+      max-width: 480px;
+      background: linear-gradient(135deg, rgba(201, 152, 74, 0.15) 0%, rgba(201, 152, 74, 0.08) 100%);
+      border: 2px solid #C9984A;
+      color: #FFD700;
+      box-shadow: 0 8px 32px rgba(201, 152, 74, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      text-shadow: 0 2px 10px rgba(201, 152, 74, 0.5);
+    }
+
+    .title {
+      font-size: 32px; font-weight: 800; margin: 0 0 16px 0;
+      color: #FFFFFF; text-align: center; letter-spacing: -0.5px;
+    }
+
+    .lead {
+      font-size: 17px; line-height: 1.7; color: #CCCCCC;
+      margin: 0 0 16px 0; text-align: center;
+    }
+
+    .validity-info {
+      font-size: 14px; font-weight: 600; color: #999999; text-align: center;
+      margin: 28px 0 0 0; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+
+    /* Support */
+    .support-box {
+      margin-top: 40px;
+      padding: 24px;
+      background: rgba(201, 152, 74, 0.08);
+      border: 1px solid rgba(201, 152, 74, 0.2);
+      border-radius: 12px;
+      text-align: center;
+    }
+    .support-box p { font-size: 14px; color: #CCCCCC; margin: 0; }
+    .support-box .accent { font-size: 15px; }
+
+    /* Store badges */
+    .store-section { margin-top: 40px; text-align: center; }
+    .store-title {
+      font-size: 16px; font-weight: 600; color: #FFFFFF;
+      margin-bottom: 20px; letter-spacing: 0.3px;
+    }
+    .store-row {
+      display: flex; gap: 16px; flex-wrap: wrap;
+      align-items: center; justify-content: center;
+    }
+    .badge {
+      display: inline-flex; align-items: center;
+      border: 2px solid rgba(201, 152, 74, 0.3);
+      background: linear-gradient(135deg, rgba(201, 152, 74, 0.1) 0%, rgba(201, 152, 74, 0.05) 100%);
+      border-radius: 12px; padding: 14px 20px;
+      text-decoration: none; box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+      min-width: 200px;
+    }
+    .badge-icon {
+      width: 40px; height: 40px; display: block; line-height: 0;
+      margin-right: 14px;
+    }
+    .badge-icon img { max-height: 28px; width: auto; display: block; margin-top: 6px; }
+    .badge-text { display: block; text-align: left; }
+    .badge-text small {
+      display: block; font-size: 11px; color: #999999; margin-bottom: 2px;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .badge-text span { display: block; font-size: 16px; font-weight: 700; color: #FFFFFF; line-height: 1.2; }
+
+    /* Footer amélioré */
+    .footer {
+      padding: 32px 32px 28px 32px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      color: #B8B8B8; font-size: 13px; line-height: 1.8;
+      background: #141414; text-align: center;
+    }
+    .footer-brand { display: block; text-align: center; margin-bottom: 16px; }
+    .footer-logo {
+      width: 56px; height: 56px; margin: 0 auto 10px auto; display: block;
+      filter: drop-shadow(0 4px 12px rgba(201,152,74,0.25));
+    }
+    .footer-title {
+      margin: 0; font-size: 18px; font-weight: 800; letter-spacing: 0.2px;
+      color: #FFD700; text-shadow: 0 1px 10px rgba(201,152,74,0.35);
+    }
+    .footer-sep {
+      height: 1px;
+      background: linear-gradient(90deg, transparent 0%, rgba(201,152,74,0.25) 50%, transparent 100%);
+      margin: 16px auto 14px auto; width: 160px;
+    }
+    .footer-info { margin-top: 8px; color: #9A9A9A; }
+
+    /* Mobile */
+    @media (max-width: 480px) {
+      .container { padding: 24px 12px; }
+      .content { padding: 36px 24px; }
+      .footer { padding: 28px 20px 24px 20px; }
+      .footer-logo { width: 48px; height: 48px; }
+      .code-box { font-size: 28px; letter-spacing: 6px; padding: 24px 20px; }
+      .title { font-size: 24px; }
+      .store-row { flex-direction: column; width: 100%; }
+      .badge { width: 100%; justify-content: flex-start; min-width: auto; }
+      .badge-icon { margin-right: 12px; }
+    }
+  </style>
+</head>
+
+<body>
+  <table role="presentation" class="container" width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+      <td>
+        <table role="presentation" class="card" width="100%" cellpadding="0" cellspacing="0" align="center">
+          <tr>
+            <td class="content">
+              {{content}}
+
+              <div class="sep"></div>
+
+              <div class="support-box">
+                <p>
+                  Une question ? Notre équipe est là pour toi<br>
+                  <span class="accent">{{supportEmail}}</span>
+                </p>
+              </div>
+
+              <div class="store-section">
+                <p class="store-title">Télécharge l'app et commence ton parcours 💪</p>
+                <div class="store-row">
+                  <a class="badge" href="{{appStoreUrl}}" target="_blank" rel="noopener">
+                    <span class="badge-icon" style="width:40px;height:40px;margin-right:14px;display:block;line-height:0;">
+                      <img src="{{appleLogo}}" alt="Apple" style="display:block;max-height:28px;width:auto;margin-top:6px;">
+                    </span>
+                    <span class="badge-text">
+                      <small>Disponible sur</small>
+                      <span>App Store</span>
+                    </span>
+                  </a>
+
+                  <a class="badge" href="{{playStoreUrl}}" target="_blank" rel="noopener">
+                    <span class="badge-icon" style="width:40px;height:40px;margin-right:14px;display:block;line-height:0;">
+                      <img src="{{androidLogo}}" alt="Android" style="display:block;max-height:28px;width:auto;margin-top:6px;">
+                    </span>
+                    <span class="badge-text">
+                      <small>Disponible sur</small>
+                      <span>Google Play</span>
+                    </span>
+                  </a>
+                </div>
+              </div>
+            </td>
+          </tr>
+
+          <tr>
+            <td class="footer">
+              <div class="footer-brand">
+                <img src="{{logo}}" width="56" height="56" alt="Forge Fitness" class="footer-logo">
+                <div class="footer-title">Forge&nbsp;Fitness</div>
+              </div>
+
+              <div class="footer-sep"></div>
+
+              <div class="footer-info">
+                © {{year}} Tous droits réservés.<br>
+                Tu reçois cet e-mail car une activation de compte a été demandée.
+              </div>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

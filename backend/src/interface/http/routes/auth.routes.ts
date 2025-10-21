@@ -1,7 +1,9 @@
-import { FastifyInstance } from 'fastify';
+import { FastifyInstance } from "fastify";
+import { authController } from "../controllers/auth.controller";
 
-export async function authRoutes(app: FastifyInstance) {
-  const ctrl = (app as any).diContainer.resolve('authController');
-  app.post('/auth/issue', ctrl.issue);
-  app.post('/auth/activate', ctrl.activateWithKey);
+export default async function authRoutes(app: FastifyInstance) {
+  const ctrl = authController(app);
+
+  app.post("/auth/issue-key", ctrl.issueKey);
+  app.post("/auth/activate", ctrl.activate);
 }
