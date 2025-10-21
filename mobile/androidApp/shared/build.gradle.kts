@@ -69,13 +69,14 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(libs.kotlin.stdlib)
-                // Ktor Client
-                implementation(libs.ktor.client.core)
-                implementation(libs.ktor.client.content.negotiation)
-                implementation(libs.ktor.serialization.kotlinx.json)
-                implementation(libs.ktor.client.logging)
 
-                // Kotlinx
+                // Ktor — use api so HttpClient (in public API) is visible to consumers
+                api(libs.ktor.client.core)
+                api(libs.ktor.client.content.negotiation)
+                api(libs.ktor.serialization.kotlinx.json)
+                api(libs.ktor.client.logging)
+
+                // Kotlinx (these don't need to leak)
                 implementation(libs.kotlinx.serialization.json)
                 implementation(libs.kotlinx.coroutines.core)
             }
@@ -89,7 +90,11 @@ kotlin {
 
         androidMain {
             dependencies {
-                implementation(libs.ktor.client.android)
+                // Android engine must also be api because it backs the expect/actual that returns HttpClient
+                api(libs.ktor.client.android)
+
+                implementation(libs.androidx.security.crypto)
+                implementation(libs.androidx.core.ktx.v1131)
             }
         }
 
@@ -103,6 +108,7 @@ kotlin {
 
         iosMain {
             dependencies {
+                // Keep darwin as implementation (doesn't affect Android app)
                 implementation(libs.ktor.client.darwin)
             }
         }

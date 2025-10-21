@@ -1,4 +1,7 @@
 export class AppError extends Error {
+  public readonly isAppError = true;
+  public readonly httpCode: number;
+
   constructor(
     message: string,
     public readonly code: string = 'APP_ERROR',
@@ -6,6 +9,8 @@ export class AppError extends Error {
     public readonly details?: unknown
   ) {
     super(message);
+    this.name = 'AppError';
+    this.httpCode = status;
   }
 
   static badRequest(message: string, details?: unknown): AppError {

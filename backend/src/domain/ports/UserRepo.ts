@@ -1,8 +1,10 @@
 import { User } from "@prisma/client";
 
 export interface UserRepo {
+  findById(id: string): Promise<User | null>;
+  
   findByEmail(email: string): Promise<User | null>;
-
+  
   create(data: {
     email: string;
     firstName: string;

@@ -5,7 +5,6 @@ import jwt from 'jsonwebtoken';
 import { env } from '@config';
 
 type Input = {
-  email: string;
   key: string;
   device: {
     deviceId: string;
@@ -36,11 +35,16 @@ export class ActivateWithKeyUseCase {
   ) {}
 
   async execute(input: Input): Promise<Output> {
-    const user = await this.userRepo.findByEmail(input.email);
-    if (!user) throw AppError.badRequest('USER_NOT_FOUND');
+    // Trouver la clé d'activation par le code
+    const ak = await this.activationKeyRepo.findByKey(input.key);
+    if (!ak) throw AppError.badRequest('INVALID_KEY');
 
-    const ak = await this.activationKeyRepo.findActiveByUserId(user.id);
-    if (!ak || ak.key !== input.key) throw AppError.badRequest('INVALID_KEY');
+    // Vérifier que la clé n'est pas déjà utilisée
+    if (ak.usedAt) throw AppError.badRequest('KEY_ALREADY_USED');
+
+    // Récupérer l'utilisateur associé à la clé
+    const user = await this.userRepo.findById(ak.userId);
+    if (!user) throw AppError.badRequest('USER_NOT_FOUND');
 
     const now = new Date();
     if (isAfter(now, ak.expiresAt)) {

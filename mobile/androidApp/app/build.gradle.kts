@@ -54,6 +54,10 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.lottie)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.material.icons.extended)
+    implementation(libs.play.services.auth.api.phone)
+
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

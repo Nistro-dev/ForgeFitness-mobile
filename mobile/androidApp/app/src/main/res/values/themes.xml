@@ -3,7 +3,7 @@
 
     <style name="Theme.ForgeFitness" parent="Theme.Material3.DayNight" />
 
-    <style name="Theme.ForgeFitness.NoActionBar" parent="Theme.Material3.DayNight">
+    <style name="Theme.ForgeFitness.NoActionBar" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="android:windowActionBar">false</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:statusBarColor">@color/white</item>
@@ -20,5 +20,27 @@
         <item name="android:activityOpenExitAnimation">@anim/fade_out</item>
         <item name="android:activityCloseEnterAnimation">@anim/fade_in</item>
         <item name="android:activityCloseExitAnimation">@anim/fade_out</item>
+    </style>
+
+    <style name="CodeBox">
+        <!-- Taille/visuel -->
+        <item name="android:gravity">center</item>
+        <item name="android:background">@drawable/bg_code_box_selector</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:hint">@string/activate_code_digit_hint</item>
+
+        <!-- 🔒 Saisie stricte à 1 caractère -->
+        <item name="android:maxLength">1</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:lines">1</item>
+        <item name="android:inputType">textVisiblePassword|textNoSuggestions|textCapCharacters</item>
+        <item name="android:digits">ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789</item>
+        <item name="android:importantForAutofill">yes</item>
+        <item name="android:autofillHints">smsOtp</item>
+        <item name="android:imeOptions">flagNoPersonalizedLearning</item>
+        <item name="android:contentDescription">@string/activate_code_digit_cd</item>
     </style>
 </resources>

@@ -9,7 +9,6 @@ export const IssueKeyBody = z.object({
 export type IssueKeyBody = z.infer<typeof IssueKeyBody>;
 
 export const ActivateBody = z.object({
-  email: z.string().email(),
   key: z.string().min(6).max(32),
   device: z.object({
     deviceId: z.string().min(4),

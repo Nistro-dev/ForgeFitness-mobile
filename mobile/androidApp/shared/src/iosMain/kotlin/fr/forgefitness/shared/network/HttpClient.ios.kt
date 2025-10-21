@@ -1,4 +1,4 @@
-package fr.forgefitness.shared
+package fr.forgefitness.shared.network
 
 import io.ktor.client.*
 import io.ktor.client.engine.darwin.*

@@ -2,6 +2,10 @@ import { UserRepo } from '@domain';
 import { prisma } from './client';
 
 export class UserRepoPrisma implements UserRepo {
+  async findById(id: string) {
+    return prisma.user.findUnique({ where: { id } });
+  }
+
   async findByEmail(email: string) {
     return prisma.user.findUnique({ where: { email } });
   }

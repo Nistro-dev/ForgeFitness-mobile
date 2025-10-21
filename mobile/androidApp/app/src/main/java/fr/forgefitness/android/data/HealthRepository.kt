@@ -1,6 +1,6 @@
 package fr.forgefitness.android.data
 
-import fr.forgefitness.shared.ApiClient
+import fr.forgefitness.shared.network.ApiClient
 import fr.forgefitness.android.core.util.Result
 
 class HealthRepository(

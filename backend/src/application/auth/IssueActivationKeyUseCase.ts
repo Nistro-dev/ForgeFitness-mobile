@@ -72,9 +72,9 @@ export class IssueActivationKeyUseCase {
 }
 
 function generateKey(): string {
-  const bytes = randomBytes(10);
+  const bytes = randomBytes(4);
   const b32 = toBase32NoPadding(bytes);
-  return b32.slice(0, 10);
+  return b32.slice(0, 6);
 }
 
 function toBase32NoPadding(bytes: Buffer | Uint8Array) {

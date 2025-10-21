@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">Forge Fitness</string>
+    <string name="activate_title">Espace adhérent</string>
+    <string name="activate_subtitle">Entrez votre code à 6 caractères</string>
+    <string name="activate_button">Valider</string>
+    <string name="activate_help">Besoin d\'aide ?</string>
+    <string name="activate_help_cd">Contacter le support</string>
+    <string name="activate_code_digit_hint">•</string>
+    <string name="activate_code_digit_cd">Champ pour entrer un caractère du code d\'activation</string>
 </resources>

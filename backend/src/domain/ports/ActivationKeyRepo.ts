@@ -11,6 +11,8 @@ export interface ActivationKeyRepo {
 
   findActiveByUserId(userId: string): Promise<ActivationKey | null>;
 
+  findByKey(key: string): Promise<ActivationKey | null>;
+
   invalidate(id: string, reason: string): Promise<void>;
 
   markUsed(id: string): Promise<void>;

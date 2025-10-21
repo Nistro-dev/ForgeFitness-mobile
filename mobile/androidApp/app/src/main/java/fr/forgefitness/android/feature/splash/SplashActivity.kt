@@ -118,7 +118,7 @@ class SplashActivity : ComponentActivity() {
                     override fun onAnimationRepeat(animation: Animator) {}
                     override fun onAnimationEnd(animation: Animator) {
                         startActivity(Intent(this@SplashActivity, MainActivity::class.java))
-                        overridePendingTransition(0, 0,)
+                        overridePendingTransition(0, 0)
                         finish()
                     }
                 })

@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activate_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:padding="24dp">
+
+    <LinearLayout
+        android:id="@+id/center_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageView
+            android:id="@+id/logo"
+            android:layout_width="160dp"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:contentDescription="@null"
+            android:importantForAccessibility="no"
+            android:src="@drawable/forgefitness_logo"
+            android:layout_marginBottom="75dp" />
+
+        <TextView
+            android:id="@+id/code_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/activate_title"
+            android:textColor="@color/text_primary"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"
+            android:labelFor="@id/code_container" />
+
+        <TextView
+            android:id="@+id/subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/activate_subtitle"
+            android:textColor="@color/text_secondary"
+            android:textSize="15sp"
+            android:layout_marginBottom="24dp" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/code_container"
+            android:layout_width="wrap_content"
+            android:layout_height="72dp"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            app:layout_constraintTop_toBottomOf="@id/subtitle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginBottom="24dp">
+
+            <!-- Box 1 -->
+            <EditText
+                android:id="@+id/et_1"
+                style="@style/CodeBox"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginEnd="8dp"
+                app:layout_constraintDimensionRatio="1:1.3"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/et_2"
+                app:layout_constraintHorizontal_weight="1"/>
+
+            <!-- Box 2 -->
+            <EditText
+                android:id="@+id/et_2"
+                style="@style/CodeBox"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginEnd="8dp"
+                app:layout_constraintDimensionRatio="1:1.3"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@id/et_1"
+                app:layout_constraintEnd_toStartOf="@id/et_3"
+                app:layout_constraintHorizontal_weight="1"/>
+
+            <!-- Box 3 -->
+            <EditText
+                android:id="@+id/et_3"
+                style="@style/CodeBox"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginEnd="8dp"
+                app:layout_constraintDimensionRatio="1:1.3"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@id/et_2"
+                app:layout_constraintEnd_toStartOf="@id/et_4"
+                app:layout_constraintHorizontal_weight="1"/>
+
+            <!-- Box 4 -->
+            <EditText
+                android:id="@+id/et_4"
+                style="@style/CodeBox"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginEnd="8dp"
+                app:layout_constraintDimensionRatio="1:1.3"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@id/et_3"
+                app:layout_constraintEnd_toStartOf="@id/et_5"
+                app:layout_constraintHorizontal_weight="1"/>
+
+            <!-- Box 5 -->
+            <EditText
+                android:id="@+id/et_5"
+                style="@style/CodeBox"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginEnd="8dp"
+                app:layout_constraintDimensionRatio="1:1.3"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@id/et_4"
+                app:layout_constraintEnd_toStartOf="@id/et_6"
+                app:layout_constraintHorizontal_weight="1"/>
+
+            <!-- Box 6 -->
+            <EditText
+                android:id="@+id/et_6"
+                style="@style/CodeBox"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintDimensionRatio="1:1.3"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@id/et_5"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_weight="1"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_validate"
+            android:layout_width="260dp"
+            android:layout_height="56dp"
+            android:text="@string/activate_button"
+            android:textSize="16sp"
+            android:fontFamily="sans-serif-medium"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"
+            app:cornerRadius="14dp"
+            app:useMaterialThemeColors="false"
+            app:backgroundTint="@color/btn_primary_tint"
+            android:textColor="@color/btn_primary_text"
+            app:rippleColor="@color/btn_primary_ripple" />
+
+        <TextView
+            android:id="@+id/errorText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:textColor="@android:color/holo_red_dark"
+            android:textSize="14sp"
+            android:gravity="center"
+            android:visibility="gone"
+            tools:text="Code invalide" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_help"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/activate_help"
+        android:textColor="@color/text_secondary"
+        android:textSize="14sp"
+        android:padding="8dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackgroundBorderless"
+        android:drawablePadding="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:contentDescription="@string/activate_help_cd" />
+</androidx.constraintlayout.widget.ConstraintLayout>

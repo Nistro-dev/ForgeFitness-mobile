@@ -34,6 +34,12 @@ export class ActivationKeyRepoPrisma implements ActivationKeyRepo {
     });
   }
 
+  async findByKey(key: string) {
+    return prisma.activationKey.findUnique({
+      where: { key },
+    });
+  }
+
   async invalidate(id: string, reason: string) {
     await prisma.activationKey.update({
       where: { id },
