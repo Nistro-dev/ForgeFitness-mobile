@@ -8,6 +8,11 @@
         <item name="android:windowNoTitle">true</item>
         <item name="android:statusBarColor">@color/white</item>
         <item name="android:navigationBarColor">@color/white</item>
+        <item name="android:windowAnimationStyle">@style/App.Animation.Fade</item>
+    </style>
+
+    <style name="Theme.ForgeFitness.SplashActivity" parent="Theme.ForgeFitness.NoActionBar">
+        <item name="android:windowBackground">@android:color/white</item>
     </style>
 
     <style name="App.Animation.Fade" parent="@android:style/Animation.Activity">

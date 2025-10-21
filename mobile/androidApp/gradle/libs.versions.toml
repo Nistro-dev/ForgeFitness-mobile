@@ -1,8 +1,10 @@
 [versions]
+activityComposeVersion = "1.9.2"
 agp = "8.9.1"
 androidGifDrawable = "1.2.29"
 appcompat = "1.7.1"
 coil = "2.6.0"
+composeBomVersion = "2024.09.02"
 coreSplashscreen = "1.0.1"
 kotlin = "2.0.21"
 coreKtx = "1.10.1"
@@ -14,6 +16,7 @@ activityCompose = "1.10.1"
 composeBom = "2024.09.00"
 kotlinStdlib = "2.0.21"
 kotlinTest = "2.0.21"
+lifecycleRuntimeKtxVersion = "2.8.6"
 lottie = "6.4.0"
 material = "1.13.0"
 runner = "1.5.2"
@@ -24,9 +27,13 @@ kotlinxCoroutines = "1.9.0"
 
 [libraries]
 android-gif-drawable = { module = "pl.droidsonroids.gif:android-gif-drawable", version.ref = "androidGifDrawable" }
+androidx-activity-compose-v192 = { module = "androidx.activity:activity-compose", version.ref = "activityComposeVersion" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
+androidx-compose-bom-v20240902 = { module = "androidx.compose:compose-bom", version.ref = "composeBomVersion" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
+androidx-lifecycle-runtime-ktx-v286 = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtxVersion" }
+androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleRuntimeKtxVersion" }
 coil = { module = "io.coil-kt:coil", version.ref = "coil" }
 coil-gif = { module = "io.coil-kt:coil-gif", version.ref = "coil" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
