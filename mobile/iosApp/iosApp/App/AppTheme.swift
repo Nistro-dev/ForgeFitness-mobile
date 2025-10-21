@@ -1,5 +1,11 @@
 import SwiftUI
 
-enum AppTheme {
-    static let background = Color.white
+struct AppTheme {
+    static func apply() {
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+            windowScene.windows.forEach { window in
+                window.overrideUserInterfaceStyle = .light
+            }
+        }
+    }
 }
