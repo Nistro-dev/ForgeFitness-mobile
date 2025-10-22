@@ -22,7 +22,6 @@ export class ValidateQrTokenUseCase {
     let userId: string | undefined;
 
     try {
-      // 1. Valider le token JWT
       validationResult = this.jwtService.validateQrToken(
         body.token,
         body.gateId,

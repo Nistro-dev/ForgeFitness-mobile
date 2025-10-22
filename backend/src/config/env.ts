@@ -9,7 +9,6 @@ const EnvSchema = z.object({
 
   JWT_SECRET: z.string().min(16),
 
-  // QR Code JWT Configuration
   JWT_PRIVATE_KEY: z.string().optional(),
   JWT_PUBLIC_KEY: z.string().optional(),
   JWT_KID: z.string().optional(),

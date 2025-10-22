@@ -20,7 +20,6 @@ export const makeContainer = () => {
     deviceRepo: asClass(DeviceRepoPrisma).singleton(),
     mailer: asClass(NodemailerMailer).singleton(),
 
-    // QR Code services
     redisClient: asClass(RedisClient).singleton(),
     jwtService: asClass(JWTService).singleton(),
     keyManager: asClass(KeyManager).singleton(),

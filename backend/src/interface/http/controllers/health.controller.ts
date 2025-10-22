@@ -12,7 +12,6 @@ export const healthController = (app: FastifyInstance) => ({
     };
   },
 
-  // Endpoint de santé détaillé avec les clés JWT
   healthDetailed: async (req: any, reply: any) => {
     try {
       const keyManager = app.diContainer.resolve<KeyManager>('keyManager');
@@ -50,7 +49,6 @@ export const healthController = (app: FastifyInstance) => ({
     }
   },
 
-  // Endpoint pour vérifier les clés JWT spécifiquement
   jwtKeys: async (req: any, reply: any) => {
     try {
       const keyManager = app.diContainer.resolve<KeyManager>('keyManager');

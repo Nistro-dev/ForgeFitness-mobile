@@ -1,6 +1,5 @@
 import { z } from 'zod';
 
-// DTO pour l'émission de token QR
 export const IssueQrTokenBody = z.object({
   gateId: z.string().optional(), // Optionnel - si pas spécifié, token générique
   ttlSeconds: z.number().min(60).max(600).optional().default(300), // 1-10 minutes
@@ -8,7 +7,6 @@ export const IssueQrTokenBody = z.object({
 
 export type IssueQrTokenBody = z.infer<typeof IssueQrTokenBody>;
 
-// DTO pour la validation de token QR
 export const ValidateQrTokenBody = z.object({
   token: z.string().min(10),
   gateId: z.string().optional(), // Optionnel - pour vérifier l'audience
@@ -16,7 +14,6 @@ export const ValidateQrTokenBody = z.object({
 
 export type ValidateQrTokenBody = z.infer<typeof ValidateQrTokenBody>;
 
-// DTOs de réponse
 export const QrTokenResponse = z.object({
   token: z.string(),
   exp: z.number(),

@@ -9,7 +9,6 @@ export const qrController = (app: FastifyInstance) => ({
     try {
       const body = IssueQrTokenBody.parse(req.body);
       
-      // Récupérer l'userId depuis le token JWT
       const userId = req.user?.id;
       if (!userId) {
         return reply.code(401).send({ error: 'Authentication required' });

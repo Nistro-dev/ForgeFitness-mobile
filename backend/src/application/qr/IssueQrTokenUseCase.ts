@@ -33,7 +33,6 @@ export class IssueQrTokenUseCase {
         return err('User account is disabled or banned');
       }
 
-      // 4. Générer le token QR
       const tokenResponse = this.jwtService.generateQrToken(
         userId,
         body.gateId,

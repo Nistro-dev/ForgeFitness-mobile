@@ -10,7 +10,7 @@ export interface QrTokenPayload {
   nbf: number; // Not before
   exp: number; // Expires at
   aud?: string; // Audience (gateId)
-  jti?: string; // JWT ID (for replay protection)
+  jti?: string;
 }
 
 export interface QrTokenResponse {
