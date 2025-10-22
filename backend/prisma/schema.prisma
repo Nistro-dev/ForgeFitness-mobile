@@ -18,6 +18,20 @@ enum Platform {
   IOS
 }
 
+enum UserStatus {
+  ACTIVE
+  DISABLED
+  BANNED
+}
+
+enum QrValidationResult {
+  ALLOW
+  DENY
+  EXPIRED
+  INVALID
+  WRONG_AUDIENCE
+}
+
 // ------------------------------------------------------------------
 // Models
 // ------------------------------------------------------------------
@@ -27,6 +41,7 @@ model User {
   email     String   @unique
   firstName String
   lastName  String
+  status    UserStatus @default(ACTIVE)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -41,6 +56,7 @@ model User {
   activationKeys ActivationKey[] @relation("UserActivationKeys")
   devices        Device[]        @relation("UserDevices")
   sessions       Session[]       @relation("UserSessions")
+  qrValidationLogs QrValidationLog[] @relation("UserQrValidationLogs")
 }
 
 model ActivationKey {
@@ -95,4 +111,24 @@ model Session {
 
   @@index([userId])
   @@index([deviceId])
+}
+
+model QrValidationLog {
+  id          String   @id @default(cuid())
+  userId      String?
+  gateId      String
+  ts          DateTime @default(now())
+  result      QrValidationResult
+  method      String   @default("qr")
+  audInToken  String?
+  kid         String?
+  tokenHash   String?  // SHA256
+  latencyMs   Int?
+  ipAddress   String?
+  userAgent   String?
+
+  user User? @relation("UserQrValidationLogs", fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([gateId, ts])
+  @@index([userId, ts])
 }

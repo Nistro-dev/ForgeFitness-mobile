@@ -4,6 +4,8 @@ import { securityPlugins } from "@if/http/plugins/security";
 import { diPlugin } from "@if/http/plugins/di";
 import { devRoutes } from "@if";
 import authRoutes from "@if/http/routes/auth.routes";
+import qrRoutes from "@if/http/routes/qr.routes";
+import healthRoutes from "@if/http/routes/health.routes";
 import { makeContainer } from "@di/container";
 
 export async function buildApp() {
@@ -32,6 +34,8 @@ export async function buildApp() {
   }
 
   await authRoutes(app);
+  await qrRoutes(app);
+  await healthRoutes(app);
   await devRoutes(app);
 
   app.setErrorHandler(httpErrorHandler);

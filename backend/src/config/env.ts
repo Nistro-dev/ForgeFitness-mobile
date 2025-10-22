@@ -9,6 +9,14 @@ const EnvSchema = z.object({
 
   JWT_SECRET: z.string().min(16),
 
+  // QR Code JWT Configuration
+  JWT_PRIVATE_KEY: z.string().optional(),
+  JWT_PUBLIC_KEY: z.string().optional(),
+  JWT_KID: z.string().optional(),
+
+  // Redis Configuration
+  REDIS_URL: z.string().optional(),
+
   MAIL_SMTP_HOST: z.string(),
   MAIL_SMTP_PORT: z.coerce.number().default(587),
   MAIL_SMTP_USER: z.string().optional(),
