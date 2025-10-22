@@ -93,8 +93,8 @@ struct ActivateView: View {
         .ignoresSafeArea(edges: [])
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .onAppear { focusedIndex = 0 }
-        .onChange(of: vm.done) { done in
-            if done { coordinator.goToMain() }
+        .onChange(of: vm.done) { oldValue, newValue in
+            if newValue { coordinator.goToMain() }
         }
     }
 }
