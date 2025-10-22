@@ -161,7 +161,6 @@ class ActivateActivity : AppCompatActivity() {
                     btnValidate.alpha = if (state.loading) 0.6f else 1f
                     btnValidate.isClickable = !state.loading
 
-                    errorText.isVisible = state.error != null
                     errorText.text = state.error ?: ""
 
                     if (state.done) {

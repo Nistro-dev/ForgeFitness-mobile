@@ -1,3 +1,4 @@
+// shared/src/commonMain/kotlin/fr/forgefitness/shared/network/ApiClient.kt
 package fr.forgefitness.shared.network
 
 import fr.forgefitness.shared.auth.ActivateRequest
@@ -6,9 +7,7 @@ import io.ktor.client.*
 import io.ktor.client.call.body
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
-import io.ktor.http.ContentType
-import io.ktor.http.contentType
-import io.ktor.http.isSuccess
+import io.ktor.http.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
@@ -26,6 +25,7 @@ class ApiClient(
         null
     }
 
+    @Throws(ApiError::class, Exception::class)
     suspend fun activate(req: ActivateRequest): ActivateResponse {
         val resp = client.post("$baseUrl/auth/activate") {
             contentType(ContentType.Application.Json)
@@ -33,7 +33,6 @@ class ApiClient(
         }
 
         val raw = try { resp.bodyAsText() } catch (_: Throwable) { "<no-body>" }
-
         println("ForgeFitness/Network: POST /auth/activate -> ${resp.status.value} ${resp.status.description}. body=$raw")
 
         if (resp.status.isSuccess()) {
@@ -44,14 +43,20 @@ class ApiClient(
             }.getOrNull()
 
             if (env != null) {
-                throw ApiError(apiCode = env.error.message, httpCode = env.error.code, message = env.error.message)
+                throw ApiError(
+                    code = env.error.code,
+                    httpStatus = resp.status.value,
+                    message = env.error.message
+                )
             } else {
-                throw ApiError(apiCode = "HTTP_${resp.status.value}", httpCode = resp.status.toString(), message = raw)
+                throw ApiError(
+                    code = "HTTP_${resp.status.value}",
+                    httpStatus = resp.status.value,
+                    message = raw
+                )
             }
         }
     }
-
-    var tokenProvider: (suspend () -> String?)? = null
 }
 
 @Serializable
@@ -59,6 +64,3 @@ data class HealthStatus(
     val status: String,
     val timestamp: String? = null
 )
-
-@Serializable data class ErrorEnvelope(val error: ErrorBody)
-@Serializable data class ErrorBody(val code: String, val message: String)

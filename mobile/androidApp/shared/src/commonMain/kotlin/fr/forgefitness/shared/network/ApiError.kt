@@ -1,7 +1,7 @@
 package fr.forgefitness.shared.network
 
 class ApiError(
-    val apiCode: String,
-    val httpCode: String? = null,
-    override val message: String = apiCode
+    val code: String,
+    val httpStatus: Int? = null,
+    override val message: String = code
 ) : Exception(message)

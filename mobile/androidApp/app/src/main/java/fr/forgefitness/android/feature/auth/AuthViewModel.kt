@@ -60,12 +60,12 @@ class AuthViewModel(
 
             } catch (t: Throwable) {
                 val msg = when (t) {
-                    is ApiError -> when (t.apiCode) {
+                    is ApiError -> when (t.message) {
                         "INVALID_KEY"      -> "Code invalide"
                         "KEY_ALREADY_USED" -> "Ce code a déjà été utilisé"
                         "USER_NOT_FOUND"   -> "Compte introuvable"
                         "KEY_EXPIRED"      -> "Ce code a expiré"
-                        else               -> "Erreur: ${t.apiCode} (${t.httpCode ?: "HTTP?"})"
+                        else               -> "Erreur: ${t.message} (HTTP ${t.httpStatus ?: 0})"
                     }
                     else -> t.message ?: "Échec de l'activation"
                 }
