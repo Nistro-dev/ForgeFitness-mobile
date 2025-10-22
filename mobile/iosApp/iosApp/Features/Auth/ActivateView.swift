@@ -8,7 +8,6 @@ struct ActivateView: View {
 
     var body: some View {
         ZStack {
-            // Contenu centré verticalement et horizontalement
             VStack(spacing: 24) {
                 Image("LOGO")
                     .resizable()
@@ -25,7 +24,6 @@ struct ActivateView: View {
                     .foregroundColor(.gray)
                     .multilineTextAlignment(.center)
 
-                // Champs de code
                 HStack(spacing: 10) {
                     ForEach(0..<6, id: \.self) { i in
                         TextField("", text: Binding(
@@ -34,7 +32,6 @@ struct ActivateView: View {
                                 let old = vm.digits[i]
                                 vm.onDigitChange(i, newVal)
 
-                                // Déplacement auto du focus
                                 if old.isEmpty && !vm.digits[i].isEmpty, i < 5 {
                                     focusedIndex = i + 1
                                 }
@@ -57,7 +54,6 @@ struct ActivateView: View {
                     }
                 }
 
-                // Bouton Valider — ne bouge pas pendant le "loading"
                 Button {
                     vm.activate()
                 } label: {
@@ -70,7 +66,6 @@ struct ActivateView: View {
                 .cornerRadius(14)
                 .padding(.top, 8)
 
-                // Message d'erreur rouge (centré sous le bouton)
                 if let err = vm.error {
                     Text(err)
                         .foregroundColor(.red)
@@ -81,25 +76,22 @@ struct ActivateView: View {
             .padding(.horizontal, 24)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
 
-            // Footer fixé en bas
             VStack {
                 Spacer()
                 Button {
-                    // Action "Besoin d'aide ?"
-                    // (ouvre un lien, affiche une feuille d’aide, etc.)
                 } label: {
-                    Text("Besoin d’aide ?")
+                    Text("Besoin d'aide ?")
                         .underline()
                         .foregroundColor(.gray)
                         .padding(.vertical, 8)
                 }
-                .padding(.bottom, 12) // marge bas
+                .padding(.bottom, 12)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
         }
         .background(Color.white)
-        .ignoresSafeArea(edges: []) // garde le footer visible
-        .ignoresSafeArea(.keyboard, edges: .bottom) // évite que le clavier pousse le footer
+        .ignoresSafeArea(edges: [])
+        .ignoresSafeArea(.keyboard, edges: .bottom)
         .onAppear { focusedIndex = 0 }
         .onChange(of: vm.done) { done in
             if done { coordinator.goToMain() }

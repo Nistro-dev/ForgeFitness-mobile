@@ -1,4 +1,3 @@
-// shared/src/commonMain/kotlin/fr/forgefitness/shared/network/ApiClient.kt
 package fr.forgefitness.shared.network
 
 import fr.forgefitness.shared.auth.ActivateRequest

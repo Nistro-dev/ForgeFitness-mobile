@@ -10,11 +10,9 @@ struct iosAppApp: App {
     var body: some Scene {
         WindowGroup {
             ZStack {
-                // Contenu piloté par le coordinator
                 Group {
                     switch coordinator.route {
                     case .splash:
-                        // on ne l’affiche pas ici, le vrai splash est en overlay (juste pour sécurité)
                         Color.white
                     case .activate:
                         ActivateView()
@@ -26,13 +24,12 @@ struct iosAppApp: App {
                 }
                 .opacity(showSplash ? 0 : 1)
 
-                // Splash en overlay pour l’anim
                 if showSplash {
                     SplashView {
                         withAnimation(.easeInOut(duration: 0.2)) {
                             showSplash = false
                         }
-                        coordinator.start()   // décide: .activate ou .main
+                        coordinator.start()
                     }
                     .transition(.opacity)
                     .zIndex(1)

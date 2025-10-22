@@ -31,7 +31,7 @@ fun HomeScreen(state: HomeUiState, onRetry: () -> Unit) {
             }
 
             when {
-                state.error != null -> { /* message + bouton Réessayer */ }
+                state.error != null -> { }
                 state.healthStatus != null -> {
                     Text("✅ Backend : ${state.healthStatus}", color = MaterialTheme.colorScheme.primary)
                 }
