@@ -1,53 +1,37 @@
 import { FastifyInstance } from 'fastify';
-import { IssueQrTokenBody, ValidateQrTokenBody } from '@if/dtos/qr.dto';
-import { IssueQrTokenUseCase } from '@app/qr/IssueQrTokenUseCase';
-import { ValidateQrTokenUseCase } from '@app/qr/ValidateQrTokenUseCase';
-import { authMiddleware, AuthenticatedRequest } from '../middleware/auth.middleware';
+import { IssueCodeBody } from '@if/dtos/qr.dto';
+import { IssueQrCodeUseCase } from '@app/qr/IssueQrCodeUseCase';
+import { AppError } from '@core/errors';
+import { AuthenticatedRequest } from '@if/http/middleware/auth.middleware';
 
-export const qrController = (app: FastifyInstance) => ({
-  issueToken: async (req: AuthenticatedRequest, reply: any) => {
-    try {
-      const body = IssueQrTokenBody.parse(req.body);
-      
-      const userId = req.user?.id;
-      if (!userId) {
-        return reply.code(401).send({ error: 'Authentication required' });
+export const qrController = (app: FastifyInstance) => {
+  const issueUC = app.diContainer.resolve<IssueQrCodeUseCase>('issueQrCodeUseCase');
+
+  return {
+    issueCode: async (req: AuthenticatedRequest & { body: unknown }, reply: any) => {
+      const user = req.user;
+      if (!user?.id) {
+        throw new AppError('Unauthorized', 'UNAUTHORIZED', 401);
       }
 
-      const useCase = app.diContainer.resolve<IssueQrTokenUseCase>('issueQrTokenUseCase');
-      const result = await useCase.execute(userId, body);
+      // ⚠️ TEMPORAIRE : Le middleware ne récupère pas le statut utilisateur
+      // Il faudrait faire une requête à la DB pour récupérer le statut
+      const userStatus = 'ACTIVE' as const; // TODO: Récupérer depuis la DB
 
-      if (!result.ok) {
-        return reply.code(403).send({ error: result.error });
+      const parse = IssueCodeBody.safeParse(req.body);
+      if (!parse.success) {
+        throw AppError.badRequest('Invalid body', parse.error.issues);
       }
 
-      return reply.code(200).send(result.value);
-    } catch (error) {
-      app.log.error({ err: error }, 'Error in issueToken');
-      return reply.code(400).send({ error: 'Invalid request' });
-    }
-  },
+      const result = await issueUC.execute({
+        userId: user.id,
+        userStatus: userStatus,
+        audience: parse.data.audience,
+        scope: parse.data.scope,
+        ttlSeconds: 300, // TTL fixé produit
+      });
 
-  validateToken: async (req: any, reply: any) => {
-    try {
-      const body = ValidateQrTokenBody.parse(req.body);
-      
-      const useCase = app.diContainer.resolve<ValidateQrTokenUseCase>('validateQrTokenUseCase');
-      const result = await useCase.execute(
-        body,
-        req.ip,
-        req.headers['user-agent']
-      );
-
-      if (!result.ok) {
-        return reply.code(500).send({ error: 'Validation failed' });
-      }
-
-      // Retourner toujours 200, le résultat est dans le body
-      return reply.code(200).send(result.value);
-    } catch (error) {
-      app.log.error({ err: error }, 'Error in validateToken');
-      return reply.code(400).send({ error: 'Invalid request' });
-    }
-  },
-});
+      return reply.status(200).send(result);
+    },
+  };
+};

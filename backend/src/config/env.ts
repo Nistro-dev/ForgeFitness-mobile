@@ -13,7 +13,6 @@ const EnvSchema = z.object({
   JWT_PUBLIC_KEY: z.string().optional(),
   JWT_KID: z.string().optional(),
 
-  // Redis Configuration
   REDIS_URL: z.string().optional(),
 
   MAIL_SMTP_HOST: z.string(),
@@ -29,6 +28,11 @@ const EnvSchema = z.object({
   S3_BUCKET: z.string().optional(),
   S3_ACCESS_KEY: z.string().optional(),
   S3_SECRET_KEY: z.string().optional(),
+
+  DEVICE_JWT_JWKS_URL: z.string().url().optional(),
+  DEVICE_JWT_PUBLIC_KEY: z.string().optional(),
+  DEVICE_JWT_ISSUER: z.string().optional(),
+  DEVICE_JWT_AUDIENCE: z.string().optional(),
 });
 
 export const env = EnvSchema.parse(process.env);

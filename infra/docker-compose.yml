@@ -21,6 +21,13 @@ services:
     image: maildev/maildev
     ports: [ "1080:1080", "1025:1025" ]
 
+  redis:
+    image: redis:7-alpine
+    ports: [ "6379:6379" ]
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes: [ "redisdata:/data" ]
+
 volumes:
   pgdata:
   minio:
+  redisdata:

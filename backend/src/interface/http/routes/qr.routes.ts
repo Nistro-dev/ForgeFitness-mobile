@@ -1,16 +1,12 @@
 import { FastifyInstance } from 'fastify';
-import { qrController } from '../controllers/qr.controller';
-import { authMiddleware } from '../middleware/auth.middleware';
+import { qrController } from '@if/http/controllers/qr.controller';
+import { authMiddleware } from '@if/http/middleware/auth.middleware';
 
 export default async function qrRoutes(app: FastifyInstance) {
   const ctrl = qrController(app);
 
-  app.post('/api/qr/token', {
-    preHandler: [authMiddleware],
-    handler: ctrl.issueToken,
-  });
+  // Mobile: issue code
+  app.post('/api/qr/code', { preHandler: authMiddleware }, ctrl.issueCode);
 
-  app.post('/api/qr/validate', {
-    handler: ctrl.validateToken,
-  });
+  // Étape 2: on ajoutera ici /api/qr/resolve (auth JWT d'équipement)
 }

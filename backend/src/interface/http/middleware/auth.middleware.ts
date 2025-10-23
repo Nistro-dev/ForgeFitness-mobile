@@ -17,15 +17,16 @@ export async function authMiddleware(
   try {
     const authHeader = request.headers.authorization;
     
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    if (!authHeader?.startsWith('Bearer ')) {
       return reply.code(401).send({ error: 'Authentication required' });
     }
 
     const token = authHeader.substring(7);
-    
-    const decoded = jwt.decode(token) as any;
-    
-    if (!decoded || !decoded.sub) {
+
+    // ✅ Vérifie la signature + exp/nbf
+    const decoded = jwt.verify(token, env.JWT_PUBLIC_KEY ?? env.JWT_SECRET) as any;
+
+    if (!decoded?.sub) {
       return reply.code(401).send({ error: 'Invalid token' });
     }
 
@@ -35,7 +36,7 @@ export async function authMiddleware(
       sid: decoded.sid,
     };
 
-  } catch (error) {
+  } catch {
     return reply.code(401).send({ error: 'Invalid token' });
   }
 }
