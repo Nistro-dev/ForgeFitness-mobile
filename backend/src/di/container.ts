@@ -24,7 +24,6 @@ export const makeContainer = () => {
     jwtService: asClass(JWTService).singleton(),
     keyManager: asClass(KeyManager).singleton(),
 
-    // Use Cases
     issueActivationKeyUseCase: asClass(IssueActivationKeyUseCase).scoped(),
     activateWithKeyUseCase: asClass(ActivateWithKeyUseCase).scoped(),
     issueQrCodeUseCase: asClass(IssueQrCodeUseCase).scoped(),

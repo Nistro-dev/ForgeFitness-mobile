@@ -1,5 +1,6 @@
 package fr.forgefitness.android.feature.home
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -8,17 +9,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import fr.forgefitness.android.R
 import fr.forgefitness.android.ui.components.CustomTabBar
 import fr.forgefitness.android.ui.components.MainTab
+import fr.forgefitness.android.ui.components.QrCard
+import fr.forgefitness.android.ui.components.QrStyle
 
 @Composable
-fun HomeRoute(vm: HomeViewModel = viewModel()) {
-    val state by vm.ui.collectAsState()
-    HomeScreen(state = state, onRetry = vm::refresh)
+fun HomeRoute() {
+    HomeScreen()
 }
 
 @Composable
-fun HomeScreen(state: HomeUiState, onRetry: () -> Unit) {
+fun HomeScreen() {
     var selectedTab by remember { mutableStateOf(MainTab.QR) }
 
     Surface(Modifier.fillMaxSize(), color = Color.Black) {
@@ -35,18 +38,35 @@ fun HomeScreen(state: HomeUiState, onRetry: () -> Unit) {
                     MainTab.Shop -> Text("Boutique", style = MaterialTheme.typography.headlineMedium, color = Color.White)
                     MainTab.Coaching -> Text("Coaching", style = MaterialTheme.typography.headlineMedium, color = Color.White)
                     MainTab.QR -> {
-                        if (state.greeting.isNotBlank()) {
-                            Text(state.greeting, style = MaterialTheme.typography.titleMedium, color = Color.White)
-                            Spacer(Modifier.height(24.dp))
-                        }
+                        val qvm: QrViewModel = viewModel()
+                        val qstate by qvm.ui.collectAsState()
 
                         when {
-                            state.error != null -> { }
-                            state.healthStatus != null -> {
-                                Text("✅ Backend : ${state.healthStatus}", color = Color.Green)
+                            qstate.isLoading -> {
+                                Spacer(Modifier.height(24.dp))
+                                CircularProgressIndicator(color = Color.White)
+                            }
+                            qstate.error != null -> {
+                                Text(qstate.error ?: "Erreur", color = Color.Red)
+                            }
+                            qstate.code != null -> {
+                                QrCard(
+                                    code = qstate.code!!,
+                                    squareSize = 340.dp,
+                                    cornerRadius = 28.dp,
+                                    qrStyle = QrStyle.Classic,
+                                    logoScale = 0.30f,
+                                    marginModules = 4
+                                )
+                                Spacer(Modifier.height(16.dp))
+                                Text(
+                                    text = "Présentez le QR à la borne",
+                                    color = Color.White,
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
                             }
                             else -> {
-                                Spacer(Modifier.height(1.dp))
+                                Text("QR indisponible", color = Color.Gray)
                             }
                         }
                     }

@@ -41,7 +41,7 @@ export class IssueQrCodeUseCase {
     const exp = now + ttl;
 
     const jti = toBase32Crockford(randomBytes(16));
-    const code = formatCode(toBase32Crockford(randomBytes(12)));
+    const code = generateShortCode(input.userId, now);
     const payload = {
       userId: input.userId,
       aud: input.audience,
@@ -79,8 +79,8 @@ function toBase32Crockford(buf: Buffer): string {
   return out;
 }
 
-function formatCode(raw: string): string {
-  const up = raw.replace(/[^0-9A-Z]/g, '').slice(0, 16);
-  const parts = [up.slice(0, 4), up.slice(4, 8), up.slice(8, 12), up.slice(12, 16)];
-  return `FF-${parts.filter(Boolean).join('-')}`;
+function generateShortCode(userId: string, timestamp: number): string {
+  const raw = `${userId}:${timestamp}`;
+  const shortHash = createHash('sha1').update(raw).digest('hex').substring(0, 10);
+  return `FF-${shortHash.toUpperCase()}`;
 }

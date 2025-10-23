@@ -12,7 +12,7 @@ type Input = {
 
 type Output = {
   decision: 'authorized' | 'denied';
-  reason: 'expired' | 'invalid_code' | 'wrong_audience' | 'replayed' | 'user_inactive' | 'rate_limited' | null;
+  reason: 'expired' | 'invalid_code' | 'wrong_audience' | 'replayed' | 'user_inactive' | 'rate_limited' | 'repeat' | null;
   userId: string | null;
   expiresAt: string | null;
 };

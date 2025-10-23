@@ -3,13 +3,13 @@ import { KeyManager } from '../crypto/KeyManager';
 import { createHash } from 'crypto';
 
 export interface QrTokenPayload {
-  iss: string; // Issuer
-  sub: string; // Subject (userId)
-  scope: string; // "entry_access"
-  iat: number; // Issued at
-  nbf: number; // Not before
-  exp: number; // Expires at
-  aud?: string; // Audience (gateId)
+  iss: string;
+  sub: string;
+  scope: string;
+  iat: number;
+  nbf: number;
+  exp: number;
+  aud?: string;
   jti?: string;
 }
 
@@ -37,17 +37,14 @@ export class JWTService {
     this.keyManager = KeyManager.getInstance();
   }
 
-  /**
-   * Génère un token QR pour l'accès à une porte
-   */
   public generateQrToken(
     userId: string,
     gateId?: string,
-    ttlSeconds = 300 // 5 minutes par défaut
+    ttlSeconds = 300
   ): QrTokenResponse {
     const now = Math.floor(Date.now() / 1000);
     const exp = now + ttlSeconds;
-    const refreshAt = exp - 15; // 15 secondes avant expiration
+    const refreshAt = exp - 15;
 
     const payload: QrTokenPayload = {
       iss: 'forge-fitness-api',
@@ -56,10 +53,9 @@ export class JWTService {
       iat: now,
       nbf: now,
       exp: exp,
-      jti: this.generateJti(), // Protection contre le replay
+      jti: this.generateJti(),
     };
 
-    // Ajouter l'audience si une porte est spécifiée
     if (gateId) {
       payload.aud = gateId;
     }
@@ -84,16 +80,12 @@ export class JWTService {
     };
   }
 
-  /**
-   * Valide un token QR
-   */
   public validateQrToken(
     token: string,
     expectedGateId?: string,
     toleranceSeconds = 30
   ): QrTokenValidationResult {
     try {
-      // Décoder le token sans vérifier la signature d'abord
       const decoded = jwt.decode(token, { complete: true });
       
       if (!decoded || typeof decoded === 'string') {
@@ -107,7 +99,6 @@ export class JWTService {
       const header = decoded.header as any;
       const payload = decoded.payload as QrTokenPayload;
 
-      // Vérifier l'algorithme
       if (header.alg !== 'RS256') {
         return {
           valid: false,
@@ -116,7 +107,6 @@ export class JWTService {
         };
       }
 
-      // Vérifier le kid
       if (header.kid !== this.keyManager.getKid()) {
         return {
           valid: false,
@@ -125,7 +115,6 @@ export class JWTService {
         };
       }
 
-      // Vérifier les timestamps avec tolérance
       const now = Math.floor(Date.now() / 1000);
       const tolerance = toleranceSeconds;
 
@@ -145,7 +134,6 @@ export class JWTService {
         };
       }
 
-      // Vérifier le scope
       if (payload.scope !== 'entry_access') {
         return {
           valid: false,
@@ -154,7 +142,6 @@ export class JWTService {
         };
       }
 
-      // Vérifier l'audience si spécifiée
       if (expectedGateId && payload.aud && payload.aud !== expectedGateId) {
         return {
           valid: false,
@@ -163,7 +150,6 @@ export class JWTService {
         };
       }
 
-      // Maintenant vérifier la signature
       try {
         jwt.verify(token, this.keyManager.getPublicKey(), {
           algorithms: ['RS256'],
@@ -191,25 +177,16 @@ export class JWTService {
     }
   }
 
-  /**
-   * Génère un hash SHA256 du token pour le logging
-   */
   public hashToken(token: string): string {
     return createHash('sha256').update(token).digest('hex');
   }
 
-  /**
-   * Génère un JTI unique pour la protection contre le replay
-   */
   private generateJti(): string {
     const timestamp = Date.now().toString(36);
     const random = Math.random().toString(36).substring(2, 15);
     return `qr_${timestamp}_${random}`;
   }
 
-  /**
-   * Extrait le payload d'un token sans validation (pour debug)
-   */
   public extractPayload(token: string): QrTokenPayload | null {
     try {
       const decoded = jwt.decode(token) as QrTokenPayload;

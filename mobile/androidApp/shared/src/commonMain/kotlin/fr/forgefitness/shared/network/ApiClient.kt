@@ -9,6 +9,8 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 
 expect fun createHttpClient(): HttpClient
 
@@ -56,10 +58,50 @@ class ApiClient(
             }
         }
     }
-}
 
-@Serializable
-data class HealthStatus(
-    val status: String,
-    val timestamp: String? = null
-)
+    @Serializable
+    data class HealthStatus(
+        val status: String,
+        val timestamp: String? = null
+    )
+
+    @Serializable
+    data class IssueQrCodeResponse(
+        val code: String,
+        val expiresAt: String,
+        val serverNow: String,
+        val ttlSeconds: Int
+    )
+
+    @Throws(ApiError::class, Exception::class)
+    suspend fun issueQrCode(
+        bearerToken: String,
+        audience: String = "entrance_main",
+        scope: String? = "entry"
+    ): IssueQrCodeResponse {
+        val resp = client.post("$baseUrl/api/qr/code") {
+            contentType(ContentType.Application.Json)
+            header(HttpHeaders.Authorization, "Bearer $bearerToken")
+            setBody(buildJsonObject {
+                put("audience", audience)
+                scope?.let { put("scope", it) }
+            })
+        }
+
+        val raw = try { resp.bodyAsText() } catch (_: Throwable) { "<no-body>" }
+
+        if (resp.status.isSuccess()) {
+            return json.decodeFromString(IssueQrCodeResponse.serializer(), raw)
+        } else {
+            val env = runCatching {
+                json.decodeFromString(ErrorEnvelope.serializer(), raw)
+            }.getOrNull()
+
+            if (env != null) {
+                throw ApiError(env.error.code, resp.status.value, env.error.message)
+            } else {
+                throw ApiError("HTTP_${resp.status.value}", resp.status.value, raw)
+            }
+        }
+    }
+}

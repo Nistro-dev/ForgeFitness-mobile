@@ -28,7 +28,6 @@ export class RedisClient {
       this.isConnected = false;
     });
 
-    // Connexion automatique au démarrage
     this.connect().catch(err => {
       console.warn('⚠️ Redis connection failed, continuing without cache:', err.message);
     });
@@ -48,7 +47,7 @@ export class RedisClient {
 
   async get(key: string): Promise<string | null> {
     if (!this.isConnected) {
-      return null; // Retourner null au lieu de throw pour les tests
+      return null;
     }
     return await this.client.get(key);
   }
@@ -74,14 +73,12 @@ export class RedisClient {
 
   async exists(key: string): Promise<boolean> {
     if (!this.isConnected) {
-      // Retourner false au lieu de throw pour éviter les erreurs
       return false;
     }
     const result = await this.client.exists(key);
     return result === 1;
   }
 
-  // Méthodes spécifiques pour le cache des utilisateurs
   async cacheUserStatus(userId: string, status: string, ttlSeconds = 3600): Promise<void> {
     const key = `user:${userId}:status`;
     await this.set(key, status, ttlSeconds);
@@ -98,7 +95,7 @@ export class RedisClient {
   }
 
   async setIfNotExists(key: string, value: string, ttlSeconds?: number): Promise<boolean> {
-    if (!this.isConnected) return true; // en mode "pas de redis", on ne bloque pas
+    if (!this.isConnected) return true;
     if (ttlSeconds) {
       const res = await this.client.set(key, value, { NX: true, EX: ttlSeconds });
       return res === 'OK';

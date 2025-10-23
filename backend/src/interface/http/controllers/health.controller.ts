@@ -3,7 +3,6 @@ import { KeyManager } from '../../../infrastructure/crypto/KeyManager';
 import { RedisClient } from '../../../infrastructure/cache/RedisClient';
 
 export const healthController = (app: FastifyInstance) => ({
-  // Endpoint de santé général
   health: async (req: any, reply: any) => {
     return {
       status: 'ok',

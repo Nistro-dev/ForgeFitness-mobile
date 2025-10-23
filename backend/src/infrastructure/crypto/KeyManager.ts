@@ -98,18 +98,15 @@ export class KeyManager {
     return createPublicKey(publicKeyPem);
   }
 
-  // Méthode pour la rotation des clés
   public rotateKeys(): KeyPair {
     console.log('🔄 Rotating keys...');
     const newKeyPair = this.generateNewKeyPair();
     
-    // Log de rotation
     this.logKeyRotation(newKeyPair);
     
     return newKeyPair;
   }
 
-  // Log de rotation pour audit
   private logKeyRotation(newKeyPair: KeyPair): void {
     const logEntry = {
       timestamp: new Date().toISOString(),
@@ -121,18 +118,14 @@ export class KeyManager {
     
     console.log('📊 Key rotation logged:', logEntry);
     
-    // Ici on pourrait envoyer à un service de logging
-    // ou écrire dans un fichier de log
   }
 
-  // Vérifier si les clés sont valides
   public validateKeys(): boolean {
     try {
       if (!this.currentKeyPair) {
         return false;
       }
       
-      // Tenter de créer des objets KeyObject
       this.getPrivateKeyObject();
       this.getPublicKeyObject();
       
@@ -143,7 +136,6 @@ export class KeyManager {
     }
   }
 
-  // Obtenir des informations sur les clés actuelles
   public getKeyInfo(): { kid: string; algorithm: string; valid: boolean } {
     return {
       kid: this.currentKeyPair?.kid || 'none',

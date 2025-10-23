@@ -7,7 +7,6 @@ export interface DeviceAuthenticatedRequest extends FastifyRequest {
   device?: { id: string; iss?: string; aud?: string };
 }
 
-// Choix en fonction de l'env
 const isHS = env.DEVICE_JWT_ALG === 'HS256';
 
 const jwks = !isHS && env.DEVICE_JWT_JWKS_URL
@@ -15,7 +14,7 @@ const jwks = !isHS && env.DEVICE_JWT_JWKS_URL
       jwksUri: env.DEVICE_JWT_JWKS_URL,
       cache: true,
       cacheMaxEntries: 8,
-      cacheMaxAge: 10 * 60 * 1000, // 10 min
+      cacheMaxAge: 10 * 60 * 1000,
       timeout: 5000,
     })
   : null;
@@ -25,6 +24,7 @@ function getKey(header: JwtHeader, cb: SigningKeyCallback) {
   if (!header.kid) return cb(new Error('Missing kid in JWT header'));
   jwks.getSigningKey(header.kid, (err, key) => {
     if (err) return cb(err);
+    if (!key) return cb(new Error('No key found'));
     const publicKey = key.getPublicKey();
     cb(null, publicKey);
   });
@@ -41,7 +41,6 @@ export async function deviceAuthMiddleware(
   const token = auth.substring(7);
 
   try {
-    // 1) Pin de l'algo exact via l'env
     const expectedAlg = env.DEVICE_JWT_ALG; // 'HS256' | 'RS256' | 'ES256' | 'EdDSA'
     const header = jwt.decode(token, { complete: true }) as { header: JwtHeader } | null;
     const alg = header?.header?.alg;
@@ -52,7 +51,6 @@ export async function deviceAuthMiddleware(
     let decoded: any;
 
     if (isHS) {
-      // 2a) Branche HS256 (dev/test)
       const secret = process.env.DEVICE_JWT_SECRET ?? env.JWT_SECRET;
       if (!secret) {
         return reply.code(401).send({ error: { code: 'UNAUTHORIZED_DEVICE', message: 'HS256 selected but no DEVICE_JWT_SECRET/JWT_SECRET set' }});
@@ -61,10 +59,9 @@ export async function deviceAuthMiddleware(
         algorithms: ['HS256'],
         issuer: env.DEVICE_JWT_ISSUER,
         audience: env.DEVICE_JWT_AUDIENCE,
-        clockTolerance: 60, // 60s de skew toléré
+        clockTolerance: 60,
       });
     } else {
-      // 2b) Branche asym (RS256/ES256/EdDSA) via JWKS
       if (!jwks) {
         return reply.code(401).send({ error: { code: 'UNAUTHORIZED_DEVICE', message: 'JWKS not configured' }});
       }

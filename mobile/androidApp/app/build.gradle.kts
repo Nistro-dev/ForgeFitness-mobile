@@ -57,7 +57,7 @@ dependencies {
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.play.services.auth.api.phone)
 
-
+    implementation("com.google.zxing:core:3.5.3")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

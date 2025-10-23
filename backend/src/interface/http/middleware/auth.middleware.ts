@@ -23,7 +23,6 @@ export async function authMiddleware(
 
     const token = authHeader.substring(7);
 
-    // ✅ Vérifie la signature + exp/nbf
     const decoded = jwt.verify(token, env.JWT_PUBLIC_KEY ?? env.JWT_SECRET) as any;
 
     if (!decoded?.sub) {
