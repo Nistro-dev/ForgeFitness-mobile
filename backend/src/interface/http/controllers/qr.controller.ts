@@ -1,11 +1,14 @@
 import { FastifyInstance } from 'fastify';
-import { IssueCodeBody } from '@if/dtos/qr.dto';
+import { IssueCodeBody, ResolveCodeBody } from '@if/dtos/qr.dto';
 import { IssueQrCodeUseCase } from '@app/qr/IssueQrCodeUseCase';
+import { ResolveQrCodeUseCase } from '@app/qr/ResolveQrCodeUseCase';
 import { AppError } from '@core/errors';
 import { AuthenticatedRequest } from '@if/http/middleware/auth.middleware';
+import { DeviceAuthenticatedRequest } from '@if/http/middleware/deviceAuth.middleware';
 
 export const qrController = (app: FastifyInstance) => {
   const issueUC = app.diContainer.resolve<IssueQrCodeUseCase>('issueQrCodeUseCase');
+  const resolveUC = app.diContainer.resolve<ResolveQrCodeUseCase>('resolveQrCodeUseCase');
 
   return {
     issueCode: async (req: AuthenticatedRequest & { body: unknown }, reply: any) => {
@@ -14,9 +17,7 @@ export const qrController = (app: FastifyInstance) => {
         throw new AppError('Unauthorized', 'UNAUTHORIZED', 401);
       }
 
-      // ⚠️ TEMPORAIRE : Le middleware ne récupère pas le statut utilisateur
-      // Il faudrait faire une requête à la DB pour récupérer le statut
-      const userStatus = 'ACTIVE' as const; // TODO: Récupérer depuis la DB
+      const userStatus = 'ACTIVE' as const;
 
       const parse = IssueCodeBody.safeParse(req.body);
       if (!parse.success) {
@@ -28,10 +29,26 @@ export const qrController = (app: FastifyInstance) => {
         userStatus: userStatus,
         audience: parse.data.audience,
         scope: parse.data.scope,
-        ttlSeconds: 300, // TTL fixé produit
+        ttlSeconds: 300,
       });
 
       return reply.status(200).send(result);
+    },
+
+    resolveCode: async (req: DeviceAuthenticatedRequest & { body: unknown }, reply: any) => {
+      if (!req.device?.id) {
+        throw new AppError('Unauthorized device', 'UNAUTHORIZED_DEVICE', 401);
+      }
+      const parse = ResolveCodeBody.safeParse(req.body);
+      if (!parse.success) throw AppError.badRequest('Invalid body', parse.error.issues);
+
+      const out = await resolveUC.execute({
+        code: parse.data.code,
+        audienceDeclared: parse.data.audience,
+        deviceId: req.device.id,
+      });
+
+      return reply.status(200).send(out);
     },
   };
 };

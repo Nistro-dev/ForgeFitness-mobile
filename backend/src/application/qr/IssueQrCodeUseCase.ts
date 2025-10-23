@@ -5,14 +5,14 @@ type Input = {
   userId: string;
   userStatus: 'ACTIVE' | 'DISABLED' | 'BANNED';
   audience: string;
-  scope?: string;               // default 'entry'
-  ttlSeconds?: number;          // default 300
+  scope?: string;
+  ttlSeconds?: number;
 };
 
 type Output = {
   code: string;
-  expiresAt: string;            // ISO
-  serverNow: string;            // ISO
+  expiresAt: string;
+  serverNow: string;
   ttlSeconds: number;
 };
 
@@ -40,23 +40,17 @@ export class IssueQrCodeUseCase {
     const now = Math.floor(Date.now() / 1000);
     const exp = now + ttl;
 
-    // jti = 128 bits
     const jti = toBase32Crockford(randomBytes(16));
-
-    // code lisible humainement (≈ 70–80 bits)
-    const code = formatCode(toBase32Crockford(randomBytes(12))); // 12 bytes → 20 chars base32, on formate
-
-    // Objet stocké en Redis
+    const code = formatCode(toBase32Crockford(randomBytes(12)));
     const payload = {
       userId: input.userId,
       aud: input.audience,
       scope,
-      exp,              // epoch seconds
+      exp,
       jti,
       createdAt: now,
     };
 
-    // TTL Redis = (exp - now) + 60s de grâce
     const ttlRedis = Math.max(1, (exp - now) + 60);
     await this.redisClient.set(`qr:code:${code}`, JSON.stringify(payload), ttlRedis);
 
@@ -69,10 +63,9 @@ export class IssueQrCodeUseCase {
   }
 }
 
-// ----------------- helpers -----------------
 
 function toBase32Crockford(buf: Buffer): string {
-  const alphabet = '0123456789ABCDEFGHJKMNPQRSTVWXYZ'; // Crockford (sans I, L, O, U)
+  const alphabet = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
   let bits = 0, value = 0, out = '';
   for (const b of buf) {
     value = (value << 8) | b;
@@ -87,7 +80,6 @@ function toBase32Crockford(buf: Buffer): string {
 }
 
 function formatCode(raw: string): string {
-  // Ex: "FF-" + "9X2G" + "-" + "7HCP" + "-" + "T4Q9"
   const up = raw.replace(/[^0-9A-Z]/g, '').slice(0, 16);
   const parts = [up.slice(0, 4), up.slice(4, 8), up.slice(8, 12), up.slice(12, 16)];
   return `FF-${parts.filter(Boolean).join('-')}`;

@@ -97,6 +97,23 @@ export class RedisClient {
     await this.del(key);
   }
 
+  async setIfNotExists(key: string, value: string, ttlSeconds?: number): Promise<boolean> {
+    if (!this.isConnected) return true; // en mode "pas de redis", on ne bloque pas
+    if (ttlSeconds) {
+      const res = await this.client.set(key, value, { NX: true, EX: ttlSeconds });
+      return res === 'OK';
+    } else {
+      const res = await this.client.set(key, value, { NX: true });
+      return res === 'OK';
+    }
+  }
+
+  async ttl(key: string): Promise<number | null> {
+    if (!this.isConnected) return null;
+    const t = await this.client.ttl(key);
+    return t;
+  }
+
   getClient(): RedisClientType {
     return this.client;
   }

@@ -1,8 +1,7 @@
 import { ActivateWithKeyUseCase } from '@app/auth/ActivateWithKeyUseCase';
 import { IssueActivationKeyUseCase } from '@app/auth/IssueActivationKeyUseCase';
-import { IssueQrTokenUseCase } from '@app/qr/IssueQrTokenUseCase';
-import { ValidateQrTokenUseCase } from '@app/qr/ValidateQrTokenUseCase';
 import { IssueQrCodeUseCase } from '@app/qr/IssueQrCodeUseCase';
+import { ResolveQrCodeUseCase } from '@app/qr/ResolveQrCodeUseCase';
 import { ActivationKeyRepoPrisma, DeviceRepoPrisma, NodemailerMailer, SessionRepoPrisma, UserRepoPrisma } from '@infra';
 import { RedisClient } from '../infrastructure/cache/RedisClient';
 import { JWTService } from '../infrastructure/jwt/JWTService';
@@ -28,9 +27,8 @@ export const makeContainer = () => {
     // Use Cases
     issueActivationKeyUseCase: asClass(IssueActivationKeyUseCase).scoped(),
     activateWithKeyUseCase: asClass(ActivateWithKeyUseCase).scoped(),
-    issueQrTokenUseCase: asClass(IssueQrTokenUseCase).scoped(),
-    validateQrTokenUseCase: asClass(ValidateQrTokenUseCase).scoped(),
     issueQrCodeUseCase: asClass(IssueQrCodeUseCase).scoped(),
+    resolveQrCodeUseCase: asClass(ResolveQrCodeUseCase).scoped(),
   });
 
   return container;
