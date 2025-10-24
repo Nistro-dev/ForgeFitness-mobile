@@ -14,12 +14,13 @@ type Output = {
   expiresAt: string;
   serverNow: string;
   ttlSeconds: number;
+  userStatus: 'ACTIVE' | 'DISABLED' | 'BANNED';
 };
 
 export class IssueQrCodeUseCase {
   constructor(private readonly redisClient: RedisClient) {}
 
-  async execute(input: Input): Promise<Output> {
+  async execute(input: Input): Promise<any> {
     if (input.userStatus !== 'ACTIVE') {
       const e: any = new Error('User is not active');
       e.isAppError = true;
@@ -59,6 +60,7 @@ export class IssueQrCodeUseCase {
       expiresAt: new Date(exp * 1000).toISOString(),
       serverNow: new Date(now * 1000).toISOString(),
       ttlSeconds: ttl,
+      userStatus: input.userStatus,
     };
   }
 }

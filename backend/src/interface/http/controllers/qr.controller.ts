@@ -5,10 +5,12 @@ import { ResolveQrCodeUseCase } from '@app/qr/ResolveQrCodeUseCase';
 import { AppError } from '@core/errors';
 import { AuthenticatedRequest } from '@if/http/middleware/auth.middleware';
 import { DeviceAuthenticatedRequest } from '@if/http/middleware/deviceAuth.middleware';
+import { UserRepo } from '@domain/ports/UserRepo';
 
 export const qrController = (app: FastifyInstance) => {
   const issueUC = app.diContainer.resolve<IssueQrCodeUseCase>('issueQrCodeUseCase');
   const resolveUC = app.diContainer.resolve<ResolveQrCodeUseCase>('resolveQrCodeUseCase');
+  const userRepo = app.diContainer.resolve<UserRepo>('userRepo');
 
   return {
     issueCode: async (req: AuthenticatedRequest & { body: unknown }, reply: any) => {
@@ -17,7 +19,10 @@ export const qrController = (app: FastifyInstance) => {
         throw new AppError('Unauthorized', 'UNAUTHORIZED', 401);
       }
 
-      const userStatus = 'ACTIVE' as const;
+      const dbUser = await userRepo.findById(user.id);
+      if (!dbUser) {
+        throw new AppError('User not found', 'USER_NOT_FOUND', 404);
+      }
 
       const parse = IssueCodeBody.safeParse(req.body);
       if (!parse.success) {
@@ -26,7 +31,7 @@ export const qrController = (app: FastifyInstance) => {
 
       const result = await issueUC.execute({
         userId: user.id,
-        userStatus: userStatus,
+        userStatus: dbUser.status,
         audience: parse.data.audience,
         scope: parse.data.scope,
         ttlSeconds: 300,

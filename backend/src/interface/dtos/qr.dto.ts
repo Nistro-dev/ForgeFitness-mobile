@@ -11,6 +11,7 @@ export const IssueCodeResponse = z.object({
   expiresAt: z.string(),
   serverNow: z.string(),
   ttlSeconds: z.number().int().positive(),
+  userStatus: z.enum(['ACTIVE', 'DISABLED', 'BANNED']),
 });
 export type IssueCodeResponse = z.infer<typeof IssueCodeResponse>;
 
