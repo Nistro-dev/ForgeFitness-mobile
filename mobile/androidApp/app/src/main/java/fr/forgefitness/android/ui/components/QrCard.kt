@@ -3,7 +3,6 @@ package fr.forgefitness.android.ui.components
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
-import android.graphics.RectF
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Canvas as ComposeCanvas
@@ -51,7 +50,7 @@ fun QrCard(
     qrStyle: QrStyle = QrStyle.Classic,
     @DrawableRes logoRes: Int = R.drawable.forgefitness_logo,
     logoScale: Float = 0.30f,
-    marginModules: Int = 4,
+    marginModules: Float = 1.5f,
 ) {
     BoxWithConstraints(
         modifier = Modifier
@@ -95,25 +94,27 @@ fun QrCard(
                     )
 
                     val logoPx = (px * logoScale).roundToInt()
-                    val maskCornerPx = with(density) { 12.dp.toPx() }
+                    val whiteSquareInset = with(density) { 16.dp.toPx() }
+                    val borderInset = with(density) { 4.dp.toPx() }
+                    val borderWidth = with(density) { 1.5.dp.toPx() }
 
                     ComposeCanvas(modifier = Modifier.fillMaxSize()) {
                         val cx = size.width / 2f
                         val cy = size.height / 2f
-                        val rOuter = logoPx / 2f + 10f
+                        val whiteSquareSize = logoPx + whiteSquareInset * 2
 
-                        drawRoundRect(
-                            color = Color.Black,
-                            topLeft = Offset(cx - rOuter, cy - rOuter),
-                            size = Size(rOuter * 2f, rOuter * 2f),
-                            cornerRadius = CornerRadius(maskCornerPx, maskCornerPx),
-                            style = Stroke(width = 3f)
-                        )
-                        drawRoundRect(
+                        drawRect(
                             color = Color.White,
-                            topLeft = Offset(cx - logoPx / 2f, cy - logoPx / 2f),
-                            size = Size(logoPx.toFloat(), logoPx.toFloat()),
-                            cornerRadius = CornerRadius(maskCornerPx, maskCornerPx)
+                            topLeft = Offset(cx - whiteSquareSize / 2f, cy - whiteSquareSize / 2f),
+                            size = Size(whiteSquareSize, whiteSquareSize)
+                        )
+
+                        val borderSize = whiteSquareSize - borderInset * 2
+                        drawRect(
+                            color = Color.Black,
+                            topLeft = Offset(cx - borderSize / 2f, cy - borderSize / 2f),
+                            size = Size(borderSize, borderSize),
+                            style = Stroke(width = borderWidth)
                         )
                     }
 
@@ -175,47 +176,60 @@ private fun generateStyledQrBitmap(
     moduleColor: Int,
     bgColor: Int,
     ecl: ErrorCorrectionLevel,
-    marginModules: Int,
+    marginModules: Float,
     logoRelativeSize: Float
 ): Bitmap {
     val hints = hashMapOf<EncodeHintType, Any>(
         EncodeHintType.ERROR_CORRECTION to ecl,
-        EncodeHintType.MARGIN to marginModules,
+        EncodeHintType.MARGIN to 0,
         EncodeHintType.CHARACTER_SET to "ISO-8859-1"
     )
 
-    val matrix = QRCodeWriter().encode(data, BarcodeFormat.QR_CODE, sizePx, sizePx, hints)
-    val md = MatrixData(matrix.width, matrix.height) { x, y -> matrix.get(x, y) }
+    val tempMatrix = QRCodeWriter().encode(data, BarcodeFormat.QR_CODE, 100, 100, hints)
+    val qrModulesCount = tempMatrix.width
 
-    val bmp = Bitmap.createBitmap(md.width, md.height, Bitmap.Config.ARGB_8888)
+    val totalModules = qrModulesCount + marginModules * 2
+    val moduleSize = (sizePx / totalModules).toInt()
+    val marginPx = (marginModules * moduleSize).toInt()
+
+    val actualSize = qrModulesCount * moduleSize + marginPx * 2
+
+    val bmp = Bitmap.createBitmap(actualSize, actualSize, Bitmap.Config.ARGB_8888)
     val c = Canvas(bmp)
     c.drawColor(bgColor)
 
-    val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+    val paint = Paint().apply {
         color = moduleColor
         style = Paint.Style.FILL
+        isAntiAlias = false
         isFilterBitmap = false
         isDither = false
     }
 
-    val moduleSize = 1f
-
-    val logoModules = (min(md.width, md.height) * logoRelativeSize).toInt()
+    val logoModules = (qrModulesCount * logoRelativeSize).toInt()
     val safePad = (logoModules * 0.58f).toInt()
-    val safeLeft = md.width / 2 - safePad
-    val safeTop  = md.height / 2 - safePad
-    val safeRight = md.width / 2 + safePad
-    val safeBottom = md.height / 2 + safePad
+    val safeLeft = qrModulesCount / 2 - safePad
+    val safeTop  = qrModulesCount / 2 - safePad
+    val safeRight = qrModulesCount / 2 + safePad
+    val safeBottom = qrModulesCount / 2 + safePad
     fun isInLogoSafeZone(x: Int, y: Int) =
         x in safeLeft..safeRight && y in safeTop..safeBottom
 
-    for (y in 0 until md.height) for (x in 0 until md.width) {
-        if (!md.bits(x, y)) continue
-        if (isInLogoSafeZone(x, y)) continue
-        c.drawRect(
-            x * moduleSize, y * moduleSize,
-            (x + 1) * moduleSize, (y + 1) * moduleSize, paint
-        )
+    for (y in 0 until qrModulesCount) {
+        for (x in 0 until qrModulesCount) {
+            if (!tempMatrix.get(x, y)) continue
+            if (isInLogoSafeZone(x, y)) continue
+
+            val left = marginPx + x * moduleSize
+            val top = marginPx + y * moduleSize
+            c.drawRect(
+                left.toFloat(),
+                top.toFloat(),
+                (left + moduleSize).toFloat(),
+                (top + moduleSize).toFloat(),
+                paint
+            )
+        }
     }
 
     return bmp

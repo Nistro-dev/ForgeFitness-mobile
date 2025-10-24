@@ -1,6 +1,5 @@
 package fr.forgefitness.android.feature.home
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -9,7 +8,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import fr.forgefitness.android.R
 import fr.forgefitness.android.ui.components.CustomTabBar
 import fr.forgefitness.android.ui.components.MainTab
 import fr.forgefitness.android.ui.components.QrCard
@@ -24,15 +22,26 @@ fun HomeRoute() {
 fun HomeScreen() {
     var selectedTab by remember { mutableStateOf(MainTab.QR) }
 
-    Surface(Modifier.fillMaxSize(), color = Color.Black) {
-        Box(Modifier.fillMaxSize()) {
-            Column(
+    Scaffold(
+        bottomBar = {
+            CustomTabBar(
+                selected = selectedTab,
+                onTabSelected = { selectedTab = it }
+            )
+        },
+        contentWindowInsets = WindowInsets(0)
+    ) { innerPadding ->
+        Surface(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding),
+            color = Color.Black
+        ) {
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 16.dp)
                     .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top)),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                contentAlignment = Alignment.Center
             ) {
                 when (selectedTab) {
                     MainTab.Shop -> Text("Boutique", style = MaterialTheme.typography.headlineMedium, color = Color.White)
@@ -43,43 +52,36 @@ fun HomeScreen() {
 
                         when {
                             qstate.isLoading -> {
-                                Spacer(Modifier.height(24.dp))
                                 CircularProgressIndicator(color = Color.White)
                             }
                             qstate.error != null -> {
                                 Text(qstate.error ?: "Erreur", color = Color.Red)
                             }
                             qstate.code != null -> {
-                                QrCard(
-                                    code = qstate.code!!,
-                                    squareSize = 340.dp,
-                                    cornerRadius = 28.dp,
-                                    qrStyle = QrStyle.Classic,
-                                    logoScale = 0.30f,
-                                    marginModules = 4
-                                )
-                                Spacer(Modifier.height(16.dp))
-                                Text(
-                                    text = "Présentez le QR à la borne",
-                                    color = Color.White,
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    QrCard(
+                                        code = qstate.code!!,
+                                        squareSize = 350.dp,
+                                        cornerRadius = 20.dp,
+                                        qrStyle = QrStyle.Classic,
+                                        logoScale = 0.25f,
+                                        marginModules = 5f
+                                    )
+                                    Spacer(Modifier.height(12.dp))
+                                    Text(
+                                        text = "Présentez le QR à la borne",
+                                        color = Color.White,
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
+                                }
                             }
-                            else -> {
-                                Text("QR indisponible", color = Color.Gray)
-                            }
+                            else -> Text("QR indisponible", color = Color.Gray)
                         }
                     }
                     MainTab.Programs -> Text("Programmes", style = MaterialTheme.typography.headlineMedium, color = Color.White)
                     MainTab.Events -> Text("Événements", style = MaterialTheme.typography.headlineMedium, color = Color.White)
                 }
             }
-
-            CustomTabBar(
-                selected = selectedTab,
-                onTabSelected = { selectedTab = it },
-                modifier = Modifier.align(Alignment.BottomCenter)
-            )
         }
     }
 }

@@ -35,7 +35,7 @@ struct MainView: View {
                 switch selected {
                 case .shop: Text("Boutique").font(.title.bold()).foregroundColor(.white)
                 case .coaching: Text("Coaching").font(.title.bold()).foregroundColor(.white)
-                case .qr: Text("QR code").font(.title.bold()).foregroundColor(.white)
+                case .qr: QrScreen()
                 case .programs: Text("Programmes").font(.title.bold()).foregroundColor(.white)
                 case .events: Text("Événements").font(.title.bold()).foregroundColor(.white)
                 }
@@ -47,9 +47,4 @@ struct MainView: View {
         }
         .ignoresSafeArea(edges: .bottom)
     }
-}
-
-#Preview {
-    MainView()
-        .environmentObject(AppCoordinator())
 }
