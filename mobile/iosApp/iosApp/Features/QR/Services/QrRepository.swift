@@ -4,10 +4,8 @@ import shared
 final class QrRepository {
     private let api: ApiClient
     private let tokenStorage: IOSUserDefaultsTokenStorage
-    private let maxRetries = 3
-    private let retryDelay: TimeInterval = 1.0
     
-    init(api: ApiClient = ApiClient(baseUrl: DefaultsBridge().baseUrl()),
+    init(api: ApiClient = ApiClient(baseUrl: Environment.current.baseURL),
          tokenStorage: IOSUserDefaultsTokenStorage = IOSUserDefaultsTokenStorage()) {
         self.api = api
         self.tokenStorage = tokenStorage
@@ -15,38 +13,38 @@ final class QrRepository {
     
     func issueQrCode(audience: String = "entrance_main", scope: String? = "entry") async throws -> QrPayload {
         guard let token = try await tokenStorage.getToken(), !token.isEmpty else {
-            throw QrError.missingToken
+            throw AppError.qr(.missingToken)
         }
         
-        return try await withRetry(maxAttempts: maxRetries) {
-            do {
-                let res = try await self.api.issueQrCode(bearerToken: token, audience: audience, scope: scope)
-                return QrPayload(code: res.code, expiresAt: res.expiresAt, serverNow: res.serverNow, ttlSeconds: res.ttlSeconds)
-            } catch let error as NSError {
-                if let statusCode = error.userInfo["statusCode"] as? Int {
-                    throw QrError.from(statusCode: statusCode, body: error.userInfo["body"] as? [String: Any])
+        do {
+            let res = try await self.api.issueQrCode(bearerToken: token, audience: audience, scope: scope)
+            return QrPayload(
+                code: res.code,
+                expiresAt: res.expiresAt,
+                serverNow: res.serverNow,
+                ttlSeconds: res.ttlSeconds,
+                userStatus: res.userStatus
+            )
+        } catch let error as NSError {
+            if error.domain == "KotlinException" {
+                if let apiError = error.userInfo["KotlinException"] as? ApiError {
+                    if apiError.code == "USER_INACTIVE" {
+                        throw AppError.qr(.userInactive)
+                    }
+                    
+                    if apiError.httpStatus == 401 {
+                        throw AppError.qr(.unauthorized)
+                    }
+                    
+                    if apiError.httpStatus >= 500 {
+                        throw AppError.qr(.serverError)
+                    }
+                    
+                    throw AppError.qr(.badRequest(apiError.message))
                 }
-                throw QrError.networkError(error)
             }
+            
+            throw AppError.fromError(error)
         }
-    }
-    
-    private func withRetry<T>(maxAttempts: Int, operation: @escaping () async throws -> T) async throws -> T {
-        var lastError: Error?
-        
-        for attempt in 1...maxAttempts {
-            do {
-                return try await operation()
-            } catch let error as QrError where !error.isRetryable {
-                throw error
-            } catch {
-                lastError = error
-                if attempt < maxAttempts {
-                    try await Task.sleep(nanoseconds: UInt64(retryDelay * Double(attempt) * 1_000_000_000))
-                }
-            }
-        }
-        
-        throw lastError ?? QrError.unknown("Retry failed")
     }
 }

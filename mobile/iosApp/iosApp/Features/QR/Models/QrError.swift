@@ -1,7 +1,7 @@
 import Foundation
 
-enum QrError: LocalizedError {
-    case networkError(Error)
+enum QrError: LocalizedError, Equatable {
+    case networkError(String)
     case unauthorized
     case userInactive
     case invalidAudience
@@ -14,8 +14,8 @@ enum QrError: LocalizedError {
     
     var errorDescription: String? {
         switch self {
-        case .networkError(let error):
-            return "Erreur réseau : \(error.localizedDescription)"
+        case .networkError(let msg):
+            return "Erreur réseau : \(msg)"
         case .unauthorized:
             return "Session expirée. Reconnectez-vous."
         case .userInactive:
@@ -47,15 +47,15 @@ enum QrError: LocalizedError {
     }
     
     static func from(statusCode: Int, body: [String: Any]?) -> QrError {
-        let code = body?["error"] as? [String: Any]
-        let errorCode = code?["code"] as? String
-        let message = code?["message"] as? String ?? "Erreur inconnue"
+        let errorDict = body?["error"] as? [String: Any]
+        let code = errorDict?["code"] as? String
+        let message = errorDict?["message"] as? String ?? "Erreur inconnue"
         
         switch statusCode {
         case 401:
             return .unauthorized
         case 403:
-            return errorCode == "USER_INACTIVE" ? .userInactive : .badRequest(message)
+            return code == "USER_INACTIVE" ? .userInactive : .badRequest(message)
         case 400:
             return .badRequest(message)
         case 500...599:
@@ -63,5 +63,9 @@ enum QrError: LocalizedError {
         default:
             return .unknown(message)
         }
+    }
+    
+    static func fromError(_ error: Error) -> QrError {
+        return .networkError(error.localizedDescription)
     }
 }

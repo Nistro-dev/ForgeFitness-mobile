@@ -1,47 +1,6 @@
 import Foundation
 import shared
 
-enum ActivationError: LocalizedError, Equatable {
-    case invalidKey
-    case keyAlreadyUsed
-    case userNotFound
-    case keyExpired
-    case networkError(String)
-    case unknown(String)
-    
-    var errorDescription: String? {
-        switch self {
-        case .invalidKey:
-            return "Code invalide"
-        case .keyAlreadyUsed:
-            return "Ce code a déjà été utilisé"
-        case .userNotFound:
-            return "Compte introuvable"
-        case .keyExpired:
-            return "Ce code a expiré"
-        case .networkError(let msg):
-            return "Erreur réseau : \(msg)"
-        case .unknown(let msg):
-            return msg
-        }
-    }
-    
-    static func from(_ apiError: ApiError) -> ActivationError {
-        switch apiError.code {
-        case "INVALID_KEY":
-            return .invalidKey
-        case "KEY_ALREADY_USED":
-            return .keyAlreadyUsed
-        case "USER_NOT_FOUND":
-            return .userNotFound
-        case "KEY_EXPIRED":
-            return .keyExpired
-        default:
-            return .unknown("Erreur: \(apiError.code)")
-        }
-    }
-}
-
 final class AuthRepository {
     private let api: ApiClient
     private let tokenStorage: IOSUserDefaultsTokenStorage
@@ -59,7 +18,7 @@ final class AuthRepository {
     
     func activate(key: String) async throws -> String {
         guard key.count == 6 else {
-            throw ActivationError.invalidKey
+            throw AppError.auth(.invalidKey)
         }
         
         do {
@@ -67,10 +26,31 @@ final class AuthRepository {
             let res = try await api.activate(req: req)
             try await tokenStorage.saveToken(token: res.token)
             return res.token
-        } catch let apiError as ApiError {
-            throw ActivationError.from(apiError)
         } catch {
-            throw ActivationError.networkError(error.localizedDescription)
+            let nsError = error as NSError
+            
+            if nsError.domain == "KotlinException",
+               let apiError = nsError.userInfo["KotlinException"] as? ApiError {
+                
+                if let authError = AuthError.from(code: apiError.code, message: apiError.message) {
+                    throw AppError.auth(authError)
+                }
+                
+                switch apiError.code {
+                case "BAD_REQUEST":
+                    throw AppError.badRequest(apiError.message)
+                case "UNAUTHORIZED":
+                    throw AppError.unauthorized(apiError.message)
+                case "FORBIDDEN":
+                    throw AppError.forbidden(apiError.message)
+                case "NOT_FOUND":
+                    throw AppError.notFound(apiError.message)
+                default:
+                    throw AppError.unknown(apiError.message)
+                }
+            }
+            
+            throw AppError.fromError(error)
         }
     }
     

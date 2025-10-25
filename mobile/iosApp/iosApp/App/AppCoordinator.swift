@@ -1,21 +1,40 @@
 import Foundation
 import Combine
-import shared
 
+@MainActor
 final class AppCoordinator: ObservableObject {
     enum Route { case splash, activate, main }
     @Published var route: Route = .splash
-
-    private let tokenStorage = IOSUserDefaultsTokenStorage()
-
+    
+    private let repo: AuthRepository
+    
+    init(repo: AuthRepository = AuthRepository()) {
+        self.repo = repo
+    }
+    
     func start() {
-        Task { @MainActor in
-            let token = try? await tokenStorage.getToken()
-            self.route = (token?.isEmpty == false) ? .main : .activate
+        Task {
+            let hasToken = await repo.hasValidToken()
+            self.route = hasToken ? .main : .activate
         }
     }
-
-    func advanceFromSplash() { start() }
-    func goToMain() { route = .main }
-    func goToActivate() { route = .activate }
+    
+    func advanceFromSplash() {
+        start()
+    }
+    
+    func goToMain() {
+        route = .main
+    }
+    
+    func goToActivate() {
+        route = .activate
+    }
+    
+    func logout() {
+        Task {
+            try? await repo.logout()
+            self.route = .activate
+        }
+    }
 }

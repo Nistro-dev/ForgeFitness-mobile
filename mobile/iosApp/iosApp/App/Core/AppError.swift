@@ -1,17 +1,13 @@
 import Foundation
 
 enum AppError: LocalizedError, Equatable {
-    // Auth Errors
     case auth(AuthError)
     
-    // QR Errors
     case qr(QrError)
     
-    // Network Errors
     case networkError(String)
     case noConnection
     
-    // HTTP Errors
     case unauthorized(String?)
     case forbidden(String?)
     case notFound(String?)
@@ -20,7 +16,6 @@ enum AppError: LocalizedError, Equatable {
     case serverError(String?)
     case validationFailed([String])
     
-    // Generic
     case unknown(String)
     
     var errorDescription: String? {
@@ -78,7 +73,6 @@ enum AppError: LocalizedError, Equatable {
         let message = errorDict?["message"] as? String
         let details = errorDict?["detail"]
         
-        // Parse validation errors
         if code == "BAD_REQUEST", let issues = details as? [[String: Any]] {
             let messages = issues.compactMap { $0["message"] as? String }
             if !messages.isEmpty {
@@ -86,14 +80,16 @@ enum AppError: LocalizedError, Equatable {
             }
         }
         
+        if code == "USER_INACTIVE" {
+            return .qr(.userInactive)
+        }
+        
         switch statusCode {
         case 400:
             if let code = code {
-                // Auth specific errors
                 if let authError = AuthError.from(code: code, message: message) {
                     return .auth(authError)
                 }
-                // QR specific errors (already handled in QrError)
             }
             return .badRequest(message ?? "Requête invalide")
             
@@ -127,7 +123,6 @@ enum AppError: LocalizedError, Equatable {
         
         let nsError = error as NSError
         
-        // Network errors
         if nsError.domain == NSURLErrorDomain {
             switch nsError.code {
             case NSURLErrorNotConnectedToInternet,

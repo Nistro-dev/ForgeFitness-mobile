@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.InputFilter
@@ -11,6 +12,8 @@ import android.text.TextWatcher
 import android.view.KeyEvent
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -25,12 +28,16 @@ import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.android.gms.common.api.Status
 import fr.forgefitness.android.MainActivity
 import fr.forgefitness.android.R
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class ActivateActivity : AppCompatActivity() {
 
     private lateinit var boxes: List<EditText>
     private lateinit var btnValidate: Button
     private lateinit var errorText: TextView
+    private lateinit var errorContainer: LinearLayout
+    private lateinit var helpButton: TextView
     private lateinit var vm: AuthViewModel
 
     private val smsConsentLauncher =
@@ -66,7 +73,7 @@ class ActivateActivity : AppCompatActivity() {
         vm = ViewModelProvider(
             this,
             AuthVMFactory(application)
-        ).get(AuthViewModel::class.java)
+        )[AuthViewModel::class.java]
 
         boxes = listOf(
             findViewById(R.id.et_1),
@@ -78,10 +85,18 @@ class ActivateActivity : AppCompatActivity() {
         )
         btnValidate = findViewById(R.id.btn_validate)
         errorText = findViewById(R.id.errorText)
+        errorContainer = findViewById(R.id.errorContainer)
+        helpButton = findViewById(R.id.helpButton)
 
         setupCodeBoxes()
         setupValidateButton()
+        setupHelpButton()
         observeUi()
+
+        lifecycleScope.launch {
+            delay(300)
+            boxes.first().requestFocus()
+        }
     }
 
     override fun onStart() {
@@ -103,7 +118,6 @@ class ActivateActivity : AppCompatActivity() {
         super.onStop()
         runCatching { unregisterReceiver(smsReceiver) }
     }
-
 
     private fun setupCodeBoxes() {
         for (i in boxes.indices) {
@@ -134,10 +148,17 @@ class ActivateActivity : AppCompatActivity() {
                                 boxes[i].setText(cleaned)
                                 boxes[i].setSelection(1)
                             }
-                            if (i < boxes.lastIndex) boxes[i + 1].requestFocus()
+                            if (i < boxes.lastIndex) {
+                                boxes[i + 1].requestFocus()
+                            } else {
+                                boxes[i].clearFocus()
+                                checkAndActivate()
+                            }
                         }
                         cleaned.isEmpty() && i > 0 -> boxes[i - 1].requestFocus()
                     }
+
+                    updateValidateButton()
                 }
             })
         }
@@ -146,22 +167,62 @@ class ActivateActivity : AppCompatActivity() {
     private fun setupValidateButton() {
         btnValidate.setOnClickListener {
             if (vm.ui.value.loading) return@setOnClickListener
-            
+
             val code = boxes.joinToString("") { it.text.toString().trim() }
             vm.onCodeChange(code)
             vm.activate()
         }
     }
 
+    private fun setupHelpButton() {
+        helpButton.setOnClickListener {
+            val intent = Intent(Intent.ACTION_SENDTO).apply {
+                data = Uri.parse("mailto:")
+                putExtra(Intent.EXTRA_EMAIL, arrayOf(getString(R.string.activate_help_email)))
+                putExtra(Intent.EXTRA_SUBJECT, getString(R.string.activate_help_subject))
+            }
+            if (intent.resolveActivity(packageManager) != null) {
+                startActivity(intent)
+            }
+        }
+    }
+
+    private fun checkAndActivate() {
+        val allFilled = boxes.all { it.text.toString().isNotBlank() }
+        if (allFilled && !vm.ui.value.loading) {
+            val code = boxes.joinToString("") { it.text.toString().trim() }
+            vm.onCodeChange(code)
+            vm.activate()
+        }
+    }
+
+    private fun updateValidateButton() {
+        val allFilled = boxes.all { it.text.toString().isNotBlank() }
+        btnValidate.isEnabled = allFilled
+    }
+
     private fun observeUi() {
-        lifecycleScope.launchWhenStarted {
+        lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 vm.ui.collect { state ->
-                    btnValidate.isEnabled = !state.loading
+                    btnValidate.text = if (state.loading) {
+                        getString(R.string.activate_button_loading)
+                    } else {
+                        getString(R.string.activate_button)
+                    }
+
+                    btnValidate.isEnabled = !state.loading && boxes.all { it.text.toString().isNotBlank() }
                     btnValidate.alpha = if (state.loading) 0.6f else 1f
                     btnValidate.isClickable = !state.loading
 
-                    errorText.text = state.error ?: ""
+                    val errorIcon = findViewById<ImageView>(R.id.errorIcon)
+                    if (state.error != null) {
+                        errorText.text = state.error
+                        errorIcon.isVisible = true
+                    } else {
+                        errorText.text = ""
+                        errorIcon.isVisible = false
+                    }
 
                     if (state.done) {
                         startActivity(
@@ -183,6 +244,6 @@ class ActivateActivity : AppCompatActivity() {
             editText.setText(cleaned[index].toString())
         }
         boxes.last().clearFocus()
-        btnValidate.requestFocus()
+        updateValidateButton()
     }
 }

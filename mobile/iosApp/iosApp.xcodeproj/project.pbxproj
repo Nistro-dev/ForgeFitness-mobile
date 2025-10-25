@@ -8,18 +8,18 @@
 
 /* Begin PBXBuildFile section */
 		9951F4A52EA706FE0041A60B /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 9951F4A42EA706FE0041A60B /* Lottie */; };
-		998F878F2EAB987000D69FA0 /* shared.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9951F4912EA6E1C10041A60B /* shared.xcframework */; };
-		998F87902EAB987000D69FA0 /* shared.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9951F4912EA6E1C10041A60B /* shared.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		998F87BE2EAC208500D69FA0 /* shared.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9951F4912EA6E1C10041A60B /* shared.xcframework */; };
+		998F87BF2EAC208500D69FA0 /* shared.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9951F4912EA6E1C10041A60B /* shared.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		998F87912EAB987000D69FA0 /* Embed Frameworks */ = {
+		998F87C02EAC208500D69FA0 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				998F87902EAB987000D69FA0 /* shared.xcframework in Embed Frameworks */,
+				998F87BF2EAC208500D69FA0 /* shared.xcframework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -58,7 +58,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				998F878F2EAB987000D69FA0 /* shared.xcframework in Frameworks */,
+				998F87BE2EAC208500D69FA0 /* shared.xcframework in Frameworks */,
 				9951F4A52EA706FE0041A60B /* Lottie in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -102,7 +102,7 @@
 				9951F47E2EA6D2E50041A60B /* Sources */,
 				9951F47F2EA6D2E50041A60B /* Frameworks */,
 				9951F4802EA6D2E50041A60B /* Resources */,
-				998F87912EAB987000D69FA0 /* Embed Frameworks */,
+				998F87C02EAC208500D69FA0 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);

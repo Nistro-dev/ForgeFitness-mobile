@@ -32,7 +32,9 @@ enum AuthError: LocalizedError, Equatable {
     }
     
     static func from(code: String, message: String?) -> AuthError? {
-        switch code {
+        let errorCode = message ?? code
+        
+        switch errorCode {
         case "INVALID_KEY":
             return .invalidKey
         case "KEY_ALREADY_USED":

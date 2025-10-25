@@ -1,10 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Forge Fitness</string>
-    <string name="activate_title">Espace adhérent</string>
-    <string name="activate_subtitle">Entrez votre code à 6 caractères</string>
+    <string name="app_name">ForgeFitness</string>
+
+    <string name="activate_title">Entrez votre code</string>
+    <string name="activate_subtitle">Saisissez les 6 caractères reçus par SMS.</string>
     <string name="activate_button">Valider</string>
+    <string name="activate_button_loading">Validation…</string>
     <string name="activate_help">Besoin d\'aide ?</string>
-    <string name="activate_help_cd">Contacter le support</string>
-    <string name="activate_code_digit_hint">•</string>
-    <string name="activate_code_digit_cd">Champ pour entrer un caractère du code d\'activation</string>
+    <string name="activate_help_email">support@forgefitness.fr</string>
+    <string name="activate_help_subject">Aide activation</string>
+
+    <string name="error_invalid_key">Code invalide</string>
+    <string name="error_key_already_used">Ce code a déjà été utilisé</string>
+    <string name="error_user_not_found">Compte introuvable</string>
+    <string name="error_key_expired">Ce code a expiré</string>
+    <string name="error_activation_failed">Échec de l\'activation</string>
 </resources>

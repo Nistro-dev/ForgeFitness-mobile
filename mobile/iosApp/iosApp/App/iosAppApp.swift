@@ -4,16 +4,23 @@ import SwiftUI
 struct iosAppApp: App {
     @State private var showSplash = true
     @StateObject private var coordinator = AppCoordinator()
-
-    init() { AppTheme.apply() }
-
+    
+    init() {
+        AppTheme.apply()
+        
+        #if DEBUG
+        print("🚀 App started in \(Environment.current.displayName) mode")
+        print("📡 Base URL: \(Environment.current.baseURL)")
+        #endif
+    }
+    
     var body: some Scene {
         WindowGroup {
             ZStack {
                 Group {
                     switch coordinator.route {
                     case .splash:
-                        Color.white
+                        Color.appBackgroundLight
                     case .activate:
                         ActivateView()
                             .environmentObject(coordinator)
@@ -23,7 +30,7 @@ struct iosAppApp: App {
                     }
                 }
                 .opacity(showSplash ? 0 : 1)
-
+                
                 if showSplash {
                     SplashView {
                         withAnimation(.easeInOut(duration: 0.2)) {
@@ -35,7 +42,7 @@ struct iosAppApp: App {
                     .zIndex(1)
                 }
             }
-            .background(Color.white)
+            .background(Color.appBackgroundLight)
             .ignoresSafeArea()
             .preferredColorScheme(.light)
         }

@@ -4,8 +4,9 @@ import UIKit
 @MainActor
 final class QrViewModel: ObservableObject {
     @Published var image: UIImage?
-    @Published var error: QrError?
+    @Published var error: AppError?
     @Published var isLoading = false
+    @Published var userStatus: String = "ACTIVE"
     
     private var code: String?
     private let repo: QrRepository
@@ -15,6 +16,7 @@ final class QrViewModel: ObservableObject {
     private var expiresAt: Date?
     private var lastSide: CGFloat = 640
     private var lastLogo: UIImage?
+    private var hasStarted = false
     
     init(repo: QrRepository = QrRepository(), cache: QrCache = QrCache()) {
         self.repo = repo
@@ -22,7 +24,8 @@ final class QrViewModel: ObservableObject {
     }
     
     func start() {
-        guard !isLoading else { return }
+        guard !hasStarted else { return }
+        hasStarted = true
         Task { await refreshNow() }
     }
     
@@ -30,7 +33,11 @@ final class QrViewModel: ObservableObject {
         lastSide = side
         lastLogo = logo
         guard let code else { return }
-        render(code, side: side, logo: logo)
+        if userStatus == "ACTIVE" {
+            render(code, side: side, logo: logo)
+        } else {
+            renderInactiveQr(side: side, logo: logo)
+        }
     }
     
     func refreshNow() async {
@@ -41,14 +48,25 @@ final class QrViewModel: ObservableObject {
         do {
             let payload = try await repo.issueQrCode()
             code = payload.code
+            userStatus = payload.userStatus
             expiresAt = payload.expiresDate
             scheduleRefresh(expires: payload.expiresDate)
-            render(payload.code, side: lastSide, logo: lastLogo ?? UIImage(named: "LOGO"))
-        } catch let qrError as QrError {
-            error = qrError
-            image = nil
+            
+            if payload.isActive {
+                render(payload.code, side: lastSide, logo: lastLogo ?? UIImage(named: "LOGO"))
+            } else {
+                renderInactiveQr(side: lastSide, logo: lastLogo ?? UIImage(named: "LOGO"))
+            }
+        } catch let appError as AppError {
+            if case .qr(let qrError) = appError, qrError == .userInactive {
+                userStatus = "DISABLED"
+                renderInactiveQr(side: lastSide, logo: lastLogo ?? UIImage(named: "LOGO"))
+            } else {
+                error = appError
+                image = nil
+            }
         } catch {
-            self.error = .networkError(error)
+            self.error = AppError.fromError(error)
             image = nil
         }
         
@@ -72,14 +90,25 @@ final class QrViewModel: ObservableObject {
         }
     }
     
+    private func renderInactiveQr(side: CGFloat, logo: UIImage?) {
+        Task.detached(priority: .userInitiated) { [weak self] in
+            guard let img = QrGenerator.make(text: "COMPTE_INACTIF", side: side, logo: logo) else { return }
+            await MainActor.run {
+                self?.image = img
+            }
+        }
+    }
+    
     private func scheduleRefresh(expires: Date?) {
         guard let exp = expires else { return }
+        
         let delay = max(0, exp.timeIntervalSinceNow - 15)
+        
         refreshTask?.cancel()
-        refreshTask = Task { [weak self] in
+        refreshTask = Task { @MainActor [weak self] in
             try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
-            guard !Task.isCancelled else { return }
-            await self?.refreshNow()
+            guard let self, !Task.isCancelled else { return }
+            await self.refreshNow()
         }
     }
     
@@ -87,9 +116,5 @@ final class QrViewModel: ObservableObject {
         let lw = logo?.cgImage?.width ?? Int((logo?.size.width ?? 0) * (logo?.scale ?? 1))
         let lh = logo?.cgImage?.height ?? Int((logo?.size.height ?? 0) * (logo?.scale ?? 1))
         return "\(code)|\(Int(side.rounded()))|\(lw)x\(lh)"
-    }
-    
-    deinit {
-        refreshTask?.cancel()
     }
 }

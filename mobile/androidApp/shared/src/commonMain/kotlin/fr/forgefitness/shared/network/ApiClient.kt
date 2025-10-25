@@ -70,7 +70,8 @@ class ApiClient(
         val code: String,
         val expiresAt: String,
         val serverNow: String,
-        val ttlSeconds: Int
+        val ttlSeconds: Int,
+        val userStatus: String
     )
 
     @Throws(ApiError::class, Exception::class)
@@ -98,9 +99,15 @@ class ApiClient(
             }.getOrNull()
 
             if (env != null) {
-                throw ApiError(env.error.code, resp.status.value, env.error.message)
+                val error = ApiError(env.error.code, resp.status.value, env.error.message)
+                error.statusCode = resp.status.value
+                error.responseBody = raw
+                throw error
             } else {
-                throw ApiError("HTTP_${resp.status.value}", resp.status.value, raw)
+                val error = ApiError("HTTP_${resp.status.value}", resp.status.value, raw)
+                error.statusCode = resp.status.value
+                error.responseBody = raw
+                throw error
             }
         }
     }
