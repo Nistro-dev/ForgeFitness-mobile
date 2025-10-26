@@ -57,11 +57,11 @@ fun QrCard(
             val cornerPx = cornerRadius.toPx()
             val shadowRadius = 40f * shadowIntensity
             val shadowLayers = 25
-            
+
             for (i in 0..shadowLayers) {
                 val spreadOffset = (shadowRadius / shadowLayers) * i
                 val alpha = ((0.12f / shadowLayers) * (shadowLayers - i)) * shadowIntensity
-                
+
                 drawRoundRect(
                     color = Color.Black.copy(alpha = alpha.coerceAtMost(0.5f)),
                     topLeft = Offset(-spreadOffset / 2f, -spreadOffset / 2f),
@@ -70,7 +70,7 @@ fun QrCard(
                 )
             }
         }
-        
+
         BoxWithConstraints(
             modifier = Modifier
                 .size(squareSize)
@@ -114,36 +114,33 @@ fun QrCard(
                                 .semantics { testTag = code }
                         )
 
-                        val logoPx = (px * logoScale).roundToInt()
-                        val whiteSquareInset = with(density) { 16.dp.toPx() }
+                        val logoSize = cardWidth * logoScale
+                        val logoSizePx = with(density) { logoSize.toPx() }
+                        val borderThickness = with(density) { 3.dp.toPx() }
 
                         ComposeCanvas(modifier = Modifier.fillMaxSize()) {
                             val cx = size.width / 2f
                             val cy = size.height / 2f
-                            val whiteSquareSize = logoPx + whiteSquareInset * 2
 
-                            val shadowLayers = 8
-                            val shadowSpread = 12f
-                            for (i in shadowLayers downTo 1) {
-                                val offset = (shadowSpread / shadowLayers) * i
-                                val alpha = (0.15f / shadowLayers) * i
-                                drawRect(
-                                    color = Color.Black.copy(alpha = alpha),
-                                    topLeft = Offset(
-                                        cx - (whiteSquareSize + offset) / 2f,
-                                        cy - (whiteSquareSize + offset) / 2f
-                                    ),
-                                    size = Size(whiteSquareSize + offset, whiteSquareSize + offset)
-                                )
-                            }
+                            val whiteSquareSize = logoSizePx * 1.35f
 
                             drawRect(
-                                color = Color.White,
+                                color = Color.Black,
                                 topLeft = Offset(
                                     cx - whiteSquareSize / 2f,
                                     cy - whiteSquareSize / 2f
                                 ),
                                 size = Size(whiteSquareSize, whiteSquareSize)
+                            )
+
+                            val innerWhiteSize = whiteSquareSize - (borderThickness * 2)
+                            drawRect(
+                                color = Color.White,
+                                topLeft = Offset(
+                                    cx - innerWhiteSize / 2f,
+                                    cy - innerWhiteSize / 2f
+                                ),
+                                size = Size(innerWhiteSize, innerWhiteSize)
                             )
                         }
 
@@ -151,7 +148,7 @@ fun QrCard(
                             painter = painterResource(id = logoRes),
                             contentDescription = "Logo",
                             contentScale = ContentScale.Fit,
-                            modifier = Modifier.size(cardWidth * logoScale)
+                            modifier = Modifier.size(logoSize)
                         )
                     }
                 } else {
@@ -225,7 +222,6 @@ private fun generateQrBitmap(
     val qrModulesCount = tempMatrix.width
     val totalModules = qrModulesCount + marginModules * 2
     val moduleSize = (sizePx / totalModules).toInt().coerceAtLeast(1)
-    val marginPx = (marginModules * moduleSize).toInt()
 
     val bmp = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
     val canvas = Canvas(bmp)
@@ -238,24 +234,24 @@ private fun generateQrBitmap(
     }
 
     val logoModules = (qrModulesCount * logoRelativeSize).toInt()
-    val safePad = (logoModules * 0.58f).toInt()
+    val safePad = (logoModules * 0.80f).toInt()
     val center = qrModulesCount / 2
-    
+
     fun isInLogoSafeZone(x: Int, y: Int): Boolean {
-        return x in (center - safePad)..(center + safePad) && 
-               y in (center - safePad)..(center + safePad)
+        return x in (center - safePad)..(center + safePad) &&
+                y in (center - safePad)..(center + safePad)
     }
 
     val qrPixelSize = qrModulesCount * moduleSize
-    val offsetX = sizePx - qrPixelSize - marginPx * 2.25f
-    val offsetY = sizePx - qrPixelSize - marginPx * 2.25f
+    val offsetX = (sizePx - qrPixelSize) / 2f
+    val offsetY = (sizePx - qrPixelSize) / 2f
 
     for (y in 0 until qrModulesCount) {
         for (x in 0 until qrModulesCount) {
             if (!tempMatrix.get(x, y) || isInLogoSafeZone(x, y)) continue
 
-            val left = offsetX + marginPx + x * moduleSize
-            val top = offsetY + marginPx + y * moduleSize
+            val left = offsetX + x * moduleSize
+            val top = offsetY + y * moduleSize
             canvas.drawRect(left, top, left + moduleSize, top + moduleSize, paint)
         }
     }
