@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import fr.forgefitness.android.data.QrRepository
+import fr.forgefitness.shared.network.ApiError
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,8 +12,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.time.Duration
 import java.time.Instant
-import java.time.format.DateTimeParseException
-import kotlin.time.Duration.Companion.seconds
 
 class QrViewModel(app: Application) : AndroidViewModel(app) {
 
@@ -37,16 +36,37 @@ class QrViewModel(app: Application) : AndroidViewModel(app) {
                 val serverNow = parseInstant(res.serverNow)
 
                 _ui.value = QrUiState(
-                    code = res.code,
+                    code = if (res.userStatus == "ACTIVE") res.code else "COMPTE_INACTIF",
                     expiresAt = expiresAt,
                     serverNow = serverNow,
                     ttlSeconds = res.ttlSeconds,
+                    userStatus = res.userStatus,
                     isLoading = false,
                     error = null
                 )
-                scheduleAutoRefresh(expiresAt, serverNow, res.ttlSeconds)
+                
+                if (res.userStatus == "ACTIVE") {
+                    scheduleAutoRefresh(expiresAt, serverNow, res.ttlSeconds)
+                }
+            } catch (e: ApiError) {
+                if (e.code == "USER_INACTIVE") {
+                    _ui.value = _ui.value.copy(
+                        isLoading = false,
+                        error = null,
+                        code = "COMPTE_INACTIF",
+                        userStatus = "DISABLED"
+                    )
+                } else {
+                    _ui.value = _ui.value.copy(
+                        isLoading = false,
+                        error = e.message
+                    )
+                }
             } catch (e: Exception) {
-                _ui.value = _ui.value.copy(isLoading = false, error = e.message ?: "Erreur inconnue")
+                _ui.value = _ui.value.copy(
+                    isLoading = false,
+                    error = e.message ?: "Erreur inconnue"
+                )
             }
         }
     }

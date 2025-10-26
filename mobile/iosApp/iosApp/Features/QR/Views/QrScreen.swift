@@ -81,7 +81,7 @@ struct QrScreen: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 6)
-        .background(viewModel.userStatus == "ACTIVE" ? Color.green.opacity(0.2) : Color.black.opacity(0.6))
+        .background(Color.black.opacity(0.6))
         .cornerRadius(16)
     }
     

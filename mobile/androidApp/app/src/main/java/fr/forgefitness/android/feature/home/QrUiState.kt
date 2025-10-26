@@ -7,6 +7,9 @@ data class QrUiState(
     val expiresAt: Instant? = null,
     val serverNow: Instant? = null,
     val ttlSeconds: Int? = null,
+    val userStatus: String = "ACTIVE",
     val isLoading: Boolean = true,
     val error: String? = null
-)
+) {
+    val isActive: Boolean get() = userStatus == "ACTIVE"
+}

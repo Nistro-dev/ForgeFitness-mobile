@@ -13,4 +13,3 @@ enum class MainTab(
     Programs(R.drawable.ic_book_open, "Programmes"),
     Events(R.drawable.ic_calendar, "Événements")
 }
-
