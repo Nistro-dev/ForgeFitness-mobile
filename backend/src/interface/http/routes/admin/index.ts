@@ -10,7 +10,7 @@ import auditRoutes from './audit.routes';
 
 export default async function adminRoutes(app: FastifyInstance) {
   app.addHook('onRequest', authMiddleware);
-  app.addHook('onRequest', auditMiddleware());
+  app.addHook('onRequest', auditMiddleware(app));
   
   app.addHook('onRequest', requireRole(['ADMIN', 'COACH']));
 

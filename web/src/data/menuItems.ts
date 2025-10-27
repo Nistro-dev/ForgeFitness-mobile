@@ -8,15 +8,17 @@ import {
   FileText, 
   Image,
   Settings,
-  List,
-  Plus,
   Tag,
   BookOpen,
   Warehouse,
   Truck,
   Upload,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  Shield,
+  Calendar,
+  ClipboardList,
+  CalendarDays
 } from 'lucide-react';
 import { MenuItem } from '@/types/sidebar';
 
@@ -39,9 +41,11 @@ export const menuItems: MenuItem[] = [
     label: 'Mobile',
     icon: Smartphone,
     children: [
-      { id: 'mobile-list', label: 'Liste', icon: List, path: '/mobile' },
-      { id: 'mobile-create', label: 'Créer', icon: Plus, path: '/mobile/create' },
-      { id: 'mobile-categories', label: 'Catégories', icon: Tag, path: '/mobile/categories' }
+      { id: 'mobile-categories', label: 'Catégories', icon: Tag, path: '/mobile/categories' },
+      { id: 'mobile-products', label: 'Produits', icon: Package, path: '/mobile/products' },
+      { id: 'mobile-planning', label: 'Planning Coach', icon: Calendar, path: '/mobile/planning' },
+      { id: 'mobile-programmes', label: 'Programmes', icon: ClipboardList, path: '/mobile/programmes' },
+      { id: 'mobile-evenements', label: 'Événements', icon: CalendarDays, path: '/mobile/evenements' }
     ]
   },
   {
@@ -61,6 +65,13 @@ export const menuItems: MenuItem[] = [
           icon: Users,
           path: '/users'
         },
+  {
+    id: 'audit',
+    label: 'Logs d\'Audit',
+    icon: Shield,
+    path: '/audit',
+    separator: true
+  },
   {
     id: 'messages',
     label: 'Messages',

@@ -7,4 +7,5 @@ export default async function auditRoutes(app: FastifyInstance) {
   app.get('/logs', auditCtrl.getAllLogs);
   app.get('/logs/entity/:entity/:entityId', auditCtrl.getLogsForEntity);
   app.get('/logs/user/:userId', auditCtrl.getLogsForUser);
+  app.get('/stats', auditCtrl.getStats);
 }

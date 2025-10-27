@@ -10,17 +10,14 @@ import { DeleteUserUseCase } from '@app/user/DeleteUserUseCase';
 import { UpdatePasswordUseCase } from '@app/user/UpdatePasswordUseCase';
 import { UpdateRoleUseCase } from '@app/user/UpdateRoleUseCase';
 import { UpdateStatusUseCase } from '@app/user/UpdateStatusUseCase';
+import { CreateCategoryUseCase } from '@app/shop/CreateCategoryUseCase';
+import { UpdateCategoryUseCase } from '@app/shop/UpdateCategoryUseCase';
+import { ListCategoriesUseCase } from '@app/shop/ListCategoriesUseCase';
 import { ActivationKeyRepoPrisma, DeviceRepoPrisma, NodemailerMailer, SessionRepoPrisma, UserRepoPrisma } from '@infra';
 import { ProductRepoPrisma } from '../infrastructure/prisma/ProductRepoPrisma';
 import { CategoryRepoPrisma } from '../infrastructure/prisma/CategoryRepoPrisma';
 import { UserRepoPrismaAudit } from '../infrastructure/prisma/UserRepoPrismaAudit';
 import { CategoryRepoPrismaAudit } from '../infrastructure/prisma/CategoryRepoPrismaAudit';
-import { ProductRepoPrismaAudit } from '../infrastructure/prisma/ProductRepoPrismaAudit';
-import { OrderRepoPrismaAudit } from '../infrastructure/prisma/OrderRepoPrismaAudit';
-import { StockMovementRepoPrismaAudit } from '../infrastructure/prisma/StockMovementRepoPrismaAudit';
-import { ActivationKeyRepoPrismaAudit } from '../infrastructure/prisma/ActivationKeyRepoPrismaAudit';
-import { DeviceRepoPrismaAudit } from '../infrastructure/prisma/DeviceRepoPrismaAudit';
-import { SessionRepoPrismaAudit } from '../infrastructure/prisma/SessionRepoPrismaAudit';
 import { OrderRepoPrisma } from '../infrastructure/prisma/OrderRepoPrisma';
 import { StockMovementRepoPrisma } from '../infrastructure/prisma/StockMovementRepoPrisma';
 import { StripePaymentProvider } from '../infrastructure/payment/StripePaymentProvider';
@@ -28,6 +25,7 @@ import { PdfInvoiceGenerator } from '../infrastructure/invoice/PdfInvoiceGenerat
 import { RedisClient } from '../infrastructure/cache/RedisClient';
 import { JWTService } from '../infrastructure/jwt/JWTService';
 import { KeyManager } from '../infrastructure/crypto/KeyManager';
+import { AuditLogService } from '../infrastructure/audit/AuditLogService';
 import { asClass, createContainer, InjectionMode } from 'awilix';
 
 export const makeContainer = () => {
@@ -37,22 +35,23 @@ export const makeContainer = () => {
 
          container.register({
            userRepo: asClass(UserRepoPrismaAudit).singleton(),
-           activationKeyRepo: asClass(ActivationKeyRepoPrismaAudit).singleton(),
-           sessionRepo: asClass(SessionRepoPrismaAudit).singleton(),
-           deviceRepo: asClass(DeviceRepoPrismaAudit).singleton(),
+           activationKeyRepo: asClass(ActivationKeyRepoPrisma).singleton(),
+           sessionRepo: asClass(SessionRepoPrisma).singleton(),
+           deviceRepo: asClass(DeviceRepoPrisma).singleton(),
            mailer: asClass(NodemailerMailer).singleton(),
 
-           productRepo: asClass(ProductRepoPrismaAudit).singleton(),
+           productRepo: asClass(ProductRepoPrisma).singleton(),
            categoryRepo: asClass(CategoryRepoPrismaAudit).singleton(),
-           orderRepo: asClass(OrderRepoPrismaAudit).singleton(),
-           stockMovementRepo: asClass(StockMovementRepoPrismaAudit).singleton(),
+           orderRepo: asClass(OrderRepoPrisma).singleton(),
+           stockMovementRepo: asClass(StockMovementRepoPrisma).singleton(),
 
     paymentProvider: asClass(StripePaymentProvider).singleton(),
     invoiceGenerator: asClass(PdfInvoiceGenerator).singleton(),
 
-    redisClient: asClass(RedisClient).singleton(),
-    jwtService: asClass(JWTService).singleton(),
-    keyManager: asClass(KeyManager).singleton(),
+           redisClient: asClass(RedisClient).singleton(),
+           jwtService: asClass(JWTService).singleton(),
+           keyManager: asClass(KeyManager).singleton(),
+           auditLogService: asClass(AuditLogService).singleton(),
 
     issueActivationKeyUseCase: asClass(IssueActivationKeyUseCase).scoped(),
     activateWithKeyUseCase: asClass(ActivateWithKeyUseCase).scoped(),
@@ -67,6 +66,10 @@ export const makeContainer = () => {
     updatePasswordUseCase: asClass(UpdatePasswordUseCase).scoped(),
     updateRoleUseCase: asClass(UpdateRoleUseCase).scoped(),
     updateStatusUseCase: asClass(UpdateStatusUseCase).scoped(),
+    
+    createCategoryUseCase: asClass(CreateCategoryUseCase).scoped(),
+    updateCategoryUseCase: asClass(UpdateCategoryUseCase).scoped(),
+    listCategoriesUseCase: asClass(ListCategoriesUseCase).scoped(),
   });
 
   return container;

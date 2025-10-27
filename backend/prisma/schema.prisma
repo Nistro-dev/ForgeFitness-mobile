@@ -20,7 +20,6 @@ enum UserRole {
 enum UserStatus {
   ACTIVE
   DISABLED
-  BANNED
 }
 
 enum QrValidationResult {

@@ -1,6 +1,7 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { CreateCategoryDto, UpdateCategoryDto } from '@if/dtos/category.dto';
 import { CreateCategoryUseCase } from '@app/shop/CreateCategoryUseCase';
+import { UpdateCategoryUseCase } from '@app/shop/UpdateCategoryUseCase';
 import { ListCategoriesUseCase } from '@app/shop/ListCategoriesUseCase';
 import { CategoryRepo } from '@domain/ports/CategoryRepo';
 
@@ -28,17 +29,17 @@ export function categoryController(app: FastifyInstance) {
       const { id } = req.params;
       const body = UpdateCategoryDto.parse(req.body);
 
-      const category = await categoryRepo.findById(id);
-      if (!category) {
-        return reply.status(404).send({
-          error: 'CATEGORY_NOT_FOUND',
-          message: 'Catégorie introuvable',
+      const useCase = new UpdateCategoryUseCase(categoryRepo);
+      const result = await useCase.execute({ id, ...body });
+
+      if (!result.ok) {
+        return reply.status(result.error.httpCode).send({
+          error: result.error.code,
+          message: result.error.message,
         });
       }
 
-      await categoryRepo.update(id, body);
-
-      return reply.status(200).send({ id });
+      return reply.status(200).send(result.value);
     },
 
     async list(req: FastifyRequest, reply: FastifyReply) {

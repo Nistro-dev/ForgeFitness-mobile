@@ -9,6 +9,7 @@ import { CategoryDetail } from './pages/CategoryDetail';
 import { UserManagement } from './pages/UserManagement';
 import { UserDetail } from './pages/UserDetail';
 import { UserCreate } from './pages/UserCreate';
+import { AuditLogs } from './pages/AuditLogs';
 import { Layout } from './components/Layout';
 
 const queryClient = new QueryClient({
@@ -109,6 +110,16 @@ function App() {
                      <ProtectedRoute>
                        <Layout>
                          <UserDetail />
+                       </Layout>
+                     </ProtectedRoute>
+                   }
+                 />
+                 <Route
+                   path="/audit"
+                   element={
+                     <ProtectedRoute>
+                       <Layout>
+                         <AuditLogs />
                        </Layout>
                      </ProtectedRoute>
                    }

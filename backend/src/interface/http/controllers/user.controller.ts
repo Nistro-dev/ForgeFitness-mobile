@@ -53,6 +53,14 @@ export function userController(app: FastifyInstance) {
 
     async update(req: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
       const { id } = req.params;
+      
+      if (!req.body) {
+        return reply.status(400).send({
+          error: 'BAD_REQUEST',
+          message: 'Body de la requête manquant',
+        });
+      }
+      
       const body = UpdateUserDto.parse(req.body);
 
       const useCase = new UpdateUserUseCase(userRepo);
@@ -86,19 +94,37 @@ export function userController(app: FastifyInstance) {
 
     async updatePassword(req: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
       const { id } = req.params;
-      const body = UpdatePasswordDto.parse(req.body);
-
-      const useCase = new UpdatePasswordUseCase(userRepo);
-      const result = await useCase.execute({ id, password: body.password });
-
-      if (!result.ok) {
+      
+      if (!req.body) {
         return reply.status(400).send({
-          error: result.error.code,
-          message: result.error.message,
+          error: 'BAD_REQUEST',
+          message: 'Body de la requête manquant',
         });
       }
+      
+      try {
+        const body = UpdatePasswordDto.parse(req.body);
 
-      return reply.status(200).send({ message: 'Mot de passe mis à jour' });
+        const useCase = new UpdatePasswordUseCase(userRepo);
+        const result = await useCase.execute({ id, password: body.password });
+
+        if (!result.ok) {
+          return reply.status(400).send({
+            error: result.error.code,
+            message: result.error.message,
+          });
+        }
+
+        return reply.status(200).send({ message: 'Mot de passe mis à jour' });
+      } catch (error: any) {
+        if (error.name === 'ZodError') {
+          return reply.status(400).send({
+            error: 'VALIDATION_ERROR',
+            message: 'Le mot de passe doit contenir au moins 6 caractères',
+          });
+        }
+        throw error;
+      }
     },
 
     async updateRole(req: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {

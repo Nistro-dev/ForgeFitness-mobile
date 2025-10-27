@@ -42,6 +42,20 @@ export const UserDetail: React.FC = () => {
   const updateStatus = useUpdateStatus();
   const issueActivationKey = useIssueActivationKey();
 
+  // Obtenir l'utilisateur connecté depuis le token
+  const getCurrentUser = () => {
+    const token = localStorage.getItem('token');
+    if (!token) return null;
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload;
+    } catch {
+      return null;
+    }
+  };
+
+  const currentUser = getCurrentUser();
+
   const [deleteModal, setDeleteModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({
@@ -51,7 +65,7 @@ export const UserDetail: React.FC = () => {
   });
   const [newPassword, setNewPassword] = useState('');
   const [newRole, setNewRole] = useState<'USER' | 'ADMIN' | 'COACH'>('USER');
-  const [newStatus, setNewStatus] = useState<'ACTIVE' | 'DISABLED' | 'BANNED'>('ACTIVE');
+  const [newStatus, setNewStatus] = useState<'ACTIVE' | 'DISABLED'>('ACTIVE');
 
   const user = users?.find(u => u.id === id);
 
@@ -78,7 +92,7 @@ export const UserDetail: React.FC = () => {
     try {
       await updateUser.mutateAsync({
         id: user.id,
-        ...editData,
+        updatedUser: editData,
       });
       toast.success('Informations mises à jour');
       setIsEditing(false);
@@ -99,6 +113,10 @@ export const UserDetail: React.FC = () => {
   const handlePasswordUpdate = async () => {
     if (!newPassword.trim()) {
       toast.error('Veuillez saisir un nouveau mot de passe');
+      return;
+    }
+    if (newPassword.length < 6) {
+      toast.error('Le mot de passe doit contenir au moins 6 caractères');
       return;
     }
     try {
@@ -251,7 +269,6 @@ export const UserDetail: React.FC = () => {
                       <span className="flex items-center">
                         {user.status === 'ACTIVE' && <UserCheck className="h-3 w-3 mr-1" />}
                         {user.status === 'DISABLED' && <UserMinus className="h-3 w-3 mr-1" />}
-                        {user.status === 'BANNED' && <UserX className="h-3 w-3 mr-1" />}
                         <span>{user.status}</span>
                       </span>
                     </Badge>
@@ -325,38 +342,40 @@ export const UserDetail: React.FC = () => {
             </CardContent>
           </Card>
 
-          {/* Modification du mot de passe */}
-          <Card className="bg-slate-800 border-slate-700">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center">
-                <Lock className="h-5 w-5 mr-2" />
-                Mot de passe
-              </CardTitle>
-              <CardDescription className="text-slate-400">
-                Modifier le mot de passe de cet utilisateur
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label className="text-slate-200">Nouveau mot de passe</Label>
-                <Input
-                  type="password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="Saisissez le nouveau mot de passe"
-                  className="bg-slate-700 border-slate-600 text-slate-50 placeholder:text-slate-400"
-                />
-              </div>
-              <Button
-                onClick={handlePasswordUpdate}
-                className="bg-green-600 hover:bg-green-700 text-white"
-                disabled={updatePassword.isPending || !newPassword.trim()}
-              >
-                <Lock className="h-4 w-4 mr-2" />
-                {updatePassword.isPending ? 'Mise à jour...' : 'Mettre à jour le mot de passe'}
-              </Button>
-            </CardContent>
-          </Card>
+          {/* Modification du mot de passe - Seulement pour les admins */}
+          {currentUser?.role === 'ADMIN' && (
+            <Card className="bg-slate-800 border-slate-700">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center">
+                  <Lock className="h-5 w-5 mr-2" />
+                  Mot de passe
+                </CardTitle>
+                <CardDescription className="text-slate-400">
+                  Modifier le mot de passe de cet utilisateur
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label className="text-slate-200">Nouveau mot de passe</Label>
+                  <Input
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="Saisissez le nouveau mot de passe"
+                    className="bg-slate-700 border-slate-600 text-slate-50 placeholder:text-slate-400"
+                  />
+                </div>
+                <Button
+                  onClick={handlePasswordUpdate}
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                  disabled={updatePassword.isPending || !newPassword.trim()}
+                >
+                  <Lock className="h-4 w-4 mr-2" />
+                  {updatePassword.isPending ? 'Mise à jour...' : 'Mettre à jour le mot de passe'}
+                </Button>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Modification du rôle */}
           <Card className="bg-slate-800 border-slate-700">
@@ -423,7 +442,7 @@ export const UserDetail: React.FC = () => {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label className="text-slate-200">Statut</Label>
-                <Select value={newStatus} onValueChange={(value: 'ACTIVE' | 'DISABLED' | 'BANNED') => setNewStatus(value)}>
+                <Select value={newStatus} onValueChange={(value: 'ACTIVE' | 'DISABLED') => setNewStatus(value)}>
                   <SelectTrigger className="bg-slate-700 border-slate-600 text-slate-50">
                     <SelectValue />
                   </SelectTrigger>
@@ -438,12 +457,6 @@ export const UserDetail: React.FC = () => {
                       <div className="flex items-center">
                         <UserMinus className="h-4 w-4 mr-2 text-yellow-500" />
                         Désactivé
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="BANNED" className="text-slate-200 hover:bg-slate-700">
-                      <div className="flex items-center">
-                        <UserX className="h-4 w-4 mr-2 text-red-500" />
-                        Banni
                       </div>
                     </SelectItem>
                   </SelectContent>

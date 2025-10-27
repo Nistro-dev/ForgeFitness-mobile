@@ -4,7 +4,7 @@ export interface User {
   firstName: string;
   lastName: string;
   role: 'USER' | 'ADMIN' | 'COACH';
-  status: 'ACTIVE' | 'DISABLED' | 'BANNED';
+  status: 'ACTIVE' | 'DISABLED';
   createdAt: string;
   updatedAt: string;
 }
@@ -15,7 +15,7 @@ export interface CreateUserDto {
   lastName: string;
   password?: string;
   role?: 'USER' | 'ADMIN' | 'COACH';
-  status?: 'ACTIVE' | 'DISABLED' | 'BANNED';
+  status?: 'ACTIVE' | 'DISABLED';
 }
 
 export interface UpdateUserDto {
@@ -33,5 +33,5 @@ export interface UpdateRoleDto {
 }
 
 export interface UpdateStatusDto {
-  status: 'ACTIVE' | 'DISABLED' | 'BANNED';
+  status: 'ACTIVE' | 'DISABLED';
 }
