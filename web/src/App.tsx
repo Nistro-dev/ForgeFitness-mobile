@@ -7,6 +7,7 @@ import { CategoryList } from './pages/CategoryList';
 import { CategoryCreate } from './pages/CategoryCreate';
 import { CategoryEdit } from './pages/CategoryEdit';
 import { UserManagement } from './pages/UserManagement';
+import { UserDetail } from './pages/UserDetail';
 import { Layout } from './components/Layout';
 
 const queryClient = new QueryClient({
@@ -87,6 +88,16 @@ function App() {
                      <ProtectedRoute>
                        <Layout>
                          <UserManagement />
+                       </Layout>
+                     </ProtectedRoute>
+                   }
+                 />
+                 <Route
+                   path="/users/:id"
+                   element={
+                     <ProtectedRoute>
+                       <Layout>
+                         <UserDetail />
                        </Layout>
                      </ProtectedRoute>
                    }

@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useUsers, useCreateUser, useUpdateUser, useDeleteUser, useUpdatePassword, useUpdateRole, useUpdateStatus } from '@/hooks/api/useUsers';
 import { useIssueActivationKey } from '@/hooks/api/useActivationKey';
 import { Button } from '@/components/ui/button';
@@ -7,12 +8,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Edit, Trash2, User, Mail, Calendar, Shield, UserCheck, UserX, UserMinus, Save, X, Lock, Search, Filter, ChevronLeft, ChevronRight, Key } from 'lucide-react';
+import { Plus, Edit, Trash2, User, Mail, Calendar, Shield, UserCheck, UserX, UserMinus, Save, X, Lock, Search, Filter, ChevronLeft, ChevronRight, Key, Eye } from 'lucide-react';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { ConfirmModal } from '@/components/common/ConfirmModal';
 import { toast } from 'sonner';
 
 export const UserManagement: React.FC = () => {
+  const navigate = useNavigate();
   const { data: users, isLoading, error } = useUsers();
   const createUser = useCreateUser();
   const updateUser = useUpdateUser();
@@ -693,6 +695,15 @@ export const UserManagement: React.FC = () => {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => navigate(`/users/${user.id}`)}
+                          className="text-green-400 hover:text-green-300 hover:bg-green-900/20"
+                          title="Voir les détails"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
                         <Button
                           variant="ghost"
                           size="sm"
