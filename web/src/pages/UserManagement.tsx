@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUsers, useDeleteUser, useIssueActivationKey } from '@/hooks/api/useUsers';
+import { useUsers, useDeleteUser } from '@/hooks/api/useUsers';
+import { useIssueActivationKey } from '@/hooks/api/useActivationKey';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
