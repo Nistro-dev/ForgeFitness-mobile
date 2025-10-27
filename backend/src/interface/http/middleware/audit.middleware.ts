@@ -1,5 +1,5 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { extractRequestContext } from '../../infrastructure/audit/RequestContext';
+import { extractRequestContext } from '../../../infrastructure/audit/RequestContext';
 
 export function auditMiddleware() {
   return async (req: FastifyRequest, reply: FastifyReply) => {
