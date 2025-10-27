@@ -24,6 +24,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -103,6 +104,8 @@ fun QrCard(
                 label = "qrCrossfade"
             ) { _ ->
                 if (qrBitmap != null) {
+                    val logoSize = cardWidth * logoScale
+
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Image(
                             bitmap = qrBitmap.asImageBitmap(),
@@ -114,42 +117,20 @@ fun QrCard(
                                 .semantics { testTag = code }
                         )
 
-                        val logoSize = cardWidth * logoScale
-                        val logoSizePx = with(density) { logoSize.toPx() }
-                        val borderThickness = with(density) { 3.dp.toPx() }
-
-                        ComposeCanvas(modifier = Modifier.fillMaxSize()) {
-                            val cx = size.width / 2f
-                            val cy = size.height / 2f
-
-                            val whiteSquareSize = logoSizePx * 1.35f
-
-                            drawRect(
-                                color = Color.Black,
-                                topLeft = Offset(
-                                    cx - whiteSquareSize / 2f,
-                                    cy - whiteSquareSize / 2f
-                                ),
-                                size = Size(whiteSquareSize, whiteSquareSize)
-                            )
-
-                            val innerWhiteSize = whiteSquareSize - (borderThickness * 2)
-                            drawRect(
-                                color = Color.White,
-                                topLeft = Offset(
-                                    cx - innerWhiteSize / 2f,
-                                    cy - innerWhiteSize / 2f
-                                ),
-                                size = Size(innerWhiteSize, innerWhiteSize)
+                        Box(
+                            modifier = Modifier
+                                .size(logoSize * 1.30f)
+                                .background(Color.White)
+                                .border(2.dp, Color.Black),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Image(
+                                painter = painterResource(id = logoRes),
+                                contentDescription = "Logo",
+                                contentScale = ContentScale.Fit,
+                                modifier = Modifier.size(logoSize)
                             )
                         }
-
-                        Image(
-                            painter = painterResource(id = logoRes),
-                            contentDescription = "Logo",
-                            contentScale = ContentScale.Fit,
-                            modifier = Modifier.size(logoSize)
-                        )
                     }
                 } else {
                     ComposeCanvas(modifier = Modifier.fillMaxSize()) {
@@ -234,7 +215,7 @@ private fun generateQrBitmap(
     }
 
     val logoModules = (qrModulesCount * logoRelativeSize).toInt()
-    val safePad = (logoModules * 0.80f).toInt()
+    val safePad = (logoModules * 0.75f).toInt()
     val center = qrModulesCount / 2
 
     fun isInLogoSafeZone(x: Int, y: Int): Boolean {

@@ -108,12 +108,8 @@ enum UserRole {
 | `stockQuantity` | Integer | Quantité disponible |
 | `isInfiniteStock` | Boolean | Stock infini (true) ou limité (false) |
 | `minStock` | Integer | Seuil d'alerte pour réapprovisionnement |
-| `unit` | String | Unité de vente ("pièce", "boîte", etc.) |
-| `weight` | Decimal | Poids pour livraison |
 | `active` | Boolean | Produit visible ou non |
-| `isDigital` | Boolean | Produit virtuel (pas de stock physique) |
 | `displayOrder` | Integer | Ordre d'affichage |
-| `externalId` | String (nullable) | ID externe (ERP futur) |
 | `createdAt` | DateTime | Date de création |
 | `updatedAt` | DateTime | Date de mise à jour |
 | `createdBy` | FK User | Utilisateur créateur |

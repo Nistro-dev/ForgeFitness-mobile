@@ -112,7 +112,7 @@ fun QrContent(qstate: QrUiState) {
             squareSize = 380.dp,
             cornerRadius = 12.dp,
             logoScale = 0.25f,
-            marginModules = if (qstate.isActive) 5f else -2.5f,
+            marginModules = if (qstate.isActive) 1f else -5f,
             shadowIntensity = 1.0f
         )
 

@@ -28,13 +28,13 @@ class ApiClient(
 
     @Throws(ApiError::class, Exception::class)
     suspend fun activate(req: ActivateRequest): ActivateResponse {
-        val resp = client.post("$baseUrl/auth/activate") {
+        val resp = client.post("$baseUrl/api/mobile/auth/activate") {
             contentType(ContentType.Application.Json)
             setBody(req)
         }
 
         val raw = try { resp.bodyAsText() } catch (_: Throwable) { "<no-body>" }
-        println("ForgeFitness/Network: POST /auth/activate -> ${resp.status.value} ${resp.status.description}. body=$raw")
+        println("ForgeFitness/Network: POST /api/mobile/auth/activate -> ${resp.status.value} ${resp.status.description}. body=$raw")
 
         if (resp.status.isSuccess()) {
             return json.decodeFromString(ActivateResponse.serializer(), raw)
@@ -80,7 +80,7 @@ class ApiClient(
         audience: String = "entrance_main",
         scope: String? = "entry"
     ): IssueQrCodeResponse {
-        val resp = client.post("$baseUrl/api/qr/code") {
+        val resp = client.post("$baseUrl/api/mobile/qr/issue") {
             contentType(ContentType.Application.Json)
             header(HttpHeaders.Authorization, "Bearer $bearerToken")
             setBody(buildJsonObject {
