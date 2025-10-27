@@ -3,9 +3,18 @@ import { IssueActivationKeyUseCase } from '@app/auth/IssueActivationKeyUseCase';
 import { AdminLoginUseCase } from '@app/auth/AdminLoginUseCase';
 import { IssueQrCodeUseCase } from '@app/qr/IssueQrCodeUseCase';
 import { ResolveQrCodeUseCase } from '@app/qr/ResolveQrCodeUseCase';
+import { CreateUserUseCase } from '@app/user/CreateUserUseCase';
+import { ListUsersUseCase } from '@app/user/ListUsersUseCase';
+import { UpdateUserUseCase } from '@app/user/UpdateUserUseCase';
+import { DeleteUserUseCase } from '@app/user/DeleteUserUseCase';
+import { UpdatePasswordUseCase } from '@app/user/UpdatePasswordUseCase';
+import { UpdateRoleUseCase } from '@app/user/UpdateRoleUseCase';
+import { UpdateStatusUseCase } from '@app/user/UpdateStatusUseCase';
 import { ActivationKeyRepoPrisma, DeviceRepoPrisma, NodemailerMailer, SessionRepoPrisma, UserRepoPrisma } from '@infra';
 import { ProductRepoPrisma } from '../infrastructure/prisma/ProductRepoPrisma';
 import { CategoryRepoPrisma } from '../infrastructure/prisma/CategoryRepoPrisma';
+import { UserRepoPrismaAudit } from '../infrastructure/prisma/UserRepoPrismaAudit';
+import { CategoryRepoPrismaAudit } from '../infrastructure/prisma/CategoryRepoPrismaAudit';
 import { OrderRepoPrisma } from '../infrastructure/prisma/OrderRepoPrisma';
 import { StockMovementRepoPrisma } from '../infrastructure/prisma/StockMovementRepoPrisma';
 import { StripePaymentProvider } from '../infrastructure/payment/StripePaymentProvider';
@@ -20,15 +29,15 @@ export const makeContainer = () => {
     injectionMode: InjectionMode.CLASSIC,
   });
 
-  container.register({
-    userRepo: asClass(UserRepoPrisma).singleton(),
-    activationKeyRepo: asClass(ActivationKeyRepoPrisma).singleton(),
-    sessionRepo: asClass(SessionRepoPrisma).singleton(),
-    deviceRepo: asClass(DeviceRepoPrisma).singleton(),
-    mailer: asClass(NodemailerMailer).singleton(),
+         container.register({
+           userRepo: asClass(UserRepoPrismaAudit).singleton(),
+           activationKeyRepo: asClass(ActivationKeyRepoPrisma).singleton(),
+           sessionRepo: asClass(SessionRepoPrisma).singleton(),
+           deviceRepo: asClass(DeviceRepoPrisma).singleton(),
+           mailer: asClass(NodemailerMailer).singleton(),
 
-    productRepo: asClass(ProductRepoPrisma).singleton(),
-    categoryRepo: asClass(CategoryRepoPrisma).singleton(),
+           productRepo: asClass(ProductRepoPrisma).singleton(),
+           categoryRepo: asClass(CategoryRepoPrismaAudit).singleton(),
     orderRepo: asClass(OrderRepoPrisma).singleton(),
     stockMovementRepo: asClass(StockMovementRepoPrisma).singleton(),
 
@@ -44,6 +53,14 @@ export const makeContainer = () => {
     adminLoginUseCase: asClass(AdminLoginUseCase).scoped(),
     issueQrCodeUseCase: asClass(IssueQrCodeUseCase).scoped(),
     resolveQrCodeUseCase: asClass(ResolveQrCodeUseCase).scoped(),
+    
+    createUserUseCase: asClass(CreateUserUseCase).scoped(),
+    listUsersUseCase: asClass(ListUsersUseCase).scoped(),
+    updateUserUseCase: asClass(UpdateUserUseCase).scoped(),
+    deleteUserUseCase: asClass(DeleteUserUseCase).scoped(),
+    updatePasswordUseCase: asClass(UpdatePasswordUseCase).scoped(),
+    updateRoleUseCase: asClass(UpdateRoleUseCase).scoped(),
+    updateStatusUseCase: asClass(UpdateStatusUseCase).scoped(),
   });
 
   return container;

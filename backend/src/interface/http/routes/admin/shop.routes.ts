@@ -20,6 +20,7 @@ export default async function shopRoutes(app: FastifyInstance) {
   app.put<{ Params: { id: string } }>('/categories/:id', { preHandler: [requireRole(['ADMIN'])] }, categoryCtrl.update);
   app.delete<{ Params: { id: string } }>('/categories/:id', { preHandler: [requireRole(['ADMIN'])] }, categoryCtrl.delete);
   app.get('/categories', categoryCtrl.list);
+  app.get<{ Params: { id: string } }>('/categories/:id', categoryCtrl.getById);
 
   app.post('/stock/adjust', { preHandler: [requireRole(['ADMIN'])] }, productCtrl.adjustStock);
 

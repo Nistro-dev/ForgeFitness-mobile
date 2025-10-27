@@ -65,7 +65,6 @@ export class IssueActivationKeyUseCase {
     return {
       userId: user.id,
       email,
-      key,
       expiresAt: expiresAt.toISOString(),
     };
   }

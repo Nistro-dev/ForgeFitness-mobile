@@ -1,8 +1,28 @@
 import { UserRepo } from '@domain';
 import { UserRole, UserStatus } from '@prisma/client';
 import { prisma } from './client';
+import { AuditLogService, AuditLogData } from '../audit/AuditLogService';
 
 export class UserRepoPrisma implements UserRepo {
+  private auditContext?: Partial<AuditLogData>;
+
+  setAuditContext(context: Partial<AuditLogData>) {
+    this.auditContext = context;
+  }
+
+  private async logAudit(action: string, entityId: string, oldValue?: any, newValue?: any) {
+    if (this.auditContext) {
+      await AuditLogService.log({
+        ...this.auditContext,
+        action,
+        entity: 'User',
+        entityId,
+        oldValue,
+        newValue,
+      });
+    }
+  }
+
   async findById(id: string) {
     return prisma.user.findUnique({ where: { id } });
   }
@@ -25,7 +45,7 @@ export class UserRepoPrisma implements UserRepo {
     role?: UserRole;
     status?: UserStatus;
   }) {
-    return prisma.user.create({
+    const user = await prisma.user.create({
       data: {
         email: data.email,
         firstName: data.firstName,
@@ -35,6 +55,16 @@ export class UserRepoPrisma implements UserRepo {
         status: data.status || UserStatus.ACTIVE,
       },
     });
+
+    await this.logAudit('CREATE', user.id, null, {
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      role: user.role,
+      status: user.status,
+    });
+
+    return user;
   }
 
   async update(userId: string, data: {
@@ -42,6 +72,8 @@ export class UserRepoPrisma implements UserRepo {
     firstName?: string;
     lastName?: string;
   }) {
+    const oldUser = await prisma.user.findUnique({ where: { id: userId } });
+    
     await prisma.user.update({
       where: { id: userId },
       data: {
@@ -50,29 +82,69 @@ export class UserRepoPrisma implements UserRepo {
         lastName: data.lastName,
       },
     });
+
+    const newUser = await prisma.user.findUnique({ where: { id: userId } });
+
+    await this.logAudit('UPDATE', userId, {
+      email: oldUser?.email,
+      firstName: oldUser?.firstName,
+      lastName: oldUser?.lastName,
+    }, {
+      email: newUser?.email,
+      firstName: newUser?.firstName,
+      lastName: newUser?.lastName,
+    });
   }
 
   async updateRole(userId: string, role: UserRole) {
+    const oldUser = await prisma.user.findUnique({ where: { id: userId } });
+    
     await prisma.user.update({
       where: { id: userId },
       data: { role },
     });
+
+    await this.logAudit('UPDATE_ROLE', userId, {
+      role: oldUser?.role,
+    }, {
+      role,
+    });
   }
 
   async updateStatus(userId: string, status: UserStatus) {
+    const oldUser = await prisma.user.findUnique({ where: { id: userId } });
+    
     await prisma.user.update({
       where: { id: userId },
       data: { status },
     });
-  }
 
-  async delete(userId: string) {
-    await prisma.user.delete({
-      where: { id: userId },
+    await this.logAudit('UPDATE_STATUS', userId, {
+      status: oldUser?.status,
+    }, {
+      status,
     });
   }
 
+  async delete(userId: string) {
+    const oldUser = await prisma.user.findUnique({ where: { id: userId } });
+    
+    await prisma.user.delete({
+      where: { id: userId },
+    });
+
+    await this.logAudit('DELETE', userId, {
+      email: oldUser?.email,
+      firstName: oldUser?.firstName,
+      lastName: oldUser?.lastName,
+      role: oldUser?.role,
+      status: oldUser?.status,
+    }, null);
+  }
+
   async updateNames(userId: string, names: { firstName: string; lastName: string }) {
+    const oldUser = await prisma.user.findUnique({ where: { id: userId } });
+    
     await prisma.user.update({
       where: { id: userId },
       data: {
@@ -80,12 +152,24 @@ export class UserRepoPrisma implements UserRepo {
         lastName: names.lastName,
       },
     });
+
+    await this.logAudit('UPDATE_NAMES', userId, {
+      firstName: oldUser?.firstName,
+      lastName: oldUser?.lastName,
+    }, {
+      firstName: names.firstName,
+      lastName: names.lastName,
+    });
   }
 
   async setCurrentActivationKey(userId: string, activationKeyId: string | null) {
     await prisma.user.update({
       where: { id: userId },
       data: { currentActivationKeyId: activationKeyId },
+    });
+
+    await this.logAudit('SET_ACTIVATION_KEY', userId, null, {
+      activationKeyId,
     });
   }
 
@@ -103,12 +187,22 @@ export class UserRepoPrisma implements UserRepo {
         currentActivationKeyId: params.activationKeyId ?? undefined,
       },
     });
+
+    await this.logAudit('UPDATE_POINTERS', params.userId, null, {
+      deviceId: params.deviceId,
+      sessionId: params.sessionId,
+      activationKeyId: params.activationKeyId,
+    });
   }
 
   async setPassword(userId: string, password: string) {
     await prisma.user.update({
       where: { id: userId },
       data: { password },
+    });
+
+    await this.logAudit('SET_PASSWORD', userId, null, {
+      passwordSet: true,
     });
   }
 }

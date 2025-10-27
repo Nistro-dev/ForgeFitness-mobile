@@ -1,15 +1,32 @@
-import { User } from "@prisma/client";
+import { User, UserRole, UserStatus } from "@prisma/client";
 
 export interface UserRepo {
   findById(id: string): Promise<User | null>;
   
   findByEmail(email: string): Promise<User | null>;
   
+  findMany(): Promise<User[]>;
+  
   create(data: {
     email: string;
     firstName: string;
     lastName: string;
+    password?: string;
+    role?: UserRole;
+    status?: UserStatus;
   }): Promise<User>;
+
+  update(userId: string, data: {
+    email?: string;
+    firstName?: string;
+    lastName?: string;
+  }): Promise<void>;
+
+  updateRole(userId: string, role: UserRole): Promise<void>;
+
+  updateStatus(userId: string, status: UserStatus): Promise<void>;
+
+  delete(userId: string): Promise<void>;
 
   updateNames(
     userId: string,

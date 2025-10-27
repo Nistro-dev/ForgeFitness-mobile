@@ -43,10 +43,24 @@ export function categoryController(app: FastifyInstance) {
 
     async list(req: FastifyRequest, reply: FastifyReply) {
       const useCase = new ListCategoriesUseCase(categoryRepo);
-      const result = await useCase.execute(true);
+      const result = await useCase.execute(false);
 
       if (!result.ok) return reply.status(500).send({ error: 'INTERNAL_ERROR' });
       return reply.status(200).send(result.value);
+    },
+
+    async getById(req: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
+      const { id } = req.params;
+
+      const category = await categoryRepo.findById(id);
+      if (!category) {
+        return reply.status(404).send({
+          error: 'CATEGORY_NOT_FOUND',
+          message: 'Catégorie introuvable',
+        });
+      }
+
+      return reply.status(200).send(category);
     },
 
     async delete(req: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
