@@ -15,6 +15,12 @@ import { ProductRepoPrisma } from '../infrastructure/prisma/ProductRepoPrisma';
 import { CategoryRepoPrisma } from '../infrastructure/prisma/CategoryRepoPrisma';
 import { UserRepoPrismaAudit } from '../infrastructure/prisma/UserRepoPrismaAudit';
 import { CategoryRepoPrismaAudit } from '../infrastructure/prisma/CategoryRepoPrismaAudit';
+import { ProductRepoPrismaAudit } from '../infrastructure/prisma/ProductRepoPrismaAudit';
+import { OrderRepoPrismaAudit } from '../infrastructure/prisma/OrderRepoPrismaAudit';
+import { StockMovementRepoPrismaAudit } from '../infrastructure/prisma/StockMovementRepoPrismaAudit';
+import { ActivationKeyRepoPrismaAudit } from '../infrastructure/prisma/ActivationKeyRepoPrismaAudit';
+import { DeviceRepoPrismaAudit } from '../infrastructure/prisma/DeviceRepoPrismaAudit';
+import { SessionRepoPrismaAudit } from '../infrastructure/prisma/SessionRepoPrismaAudit';
 import { OrderRepoPrisma } from '../infrastructure/prisma/OrderRepoPrisma';
 import { StockMovementRepoPrisma } from '../infrastructure/prisma/StockMovementRepoPrisma';
 import { StripePaymentProvider } from '../infrastructure/payment/StripePaymentProvider';
@@ -31,15 +37,15 @@ export const makeContainer = () => {
 
          container.register({
            userRepo: asClass(UserRepoPrismaAudit).singleton(),
-           activationKeyRepo: asClass(ActivationKeyRepoPrisma).singleton(),
-           sessionRepo: asClass(SessionRepoPrisma).singleton(),
-           deviceRepo: asClass(DeviceRepoPrisma).singleton(),
+           activationKeyRepo: asClass(ActivationKeyRepoPrismaAudit).singleton(),
+           sessionRepo: asClass(SessionRepoPrismaAudit).singleton(),
+           deviceRepo: asClass(DeviceRepoPrismaAudit).singleton(),
            mailer: asClass(NodemailerMailer).singleton(),
 
-           productRepo: asClass(ProductRepoPrisma).singleton(),
+           productRepo: asClass(ProductRepoPrismaAudit).singleton(),
            categoryRepo: asClass(CategoryRepoPrismaAudit).singleton(),
-    orderRepo: asClass(OrderRepoPrisma).singleton(),
-    stockMovementRepo: asClass(StockMovementRepoPrisma).singleton(),
+           orderRepo: asClass(OrderRepoPrismaAudit).singleton(),
+           stockMovementRepo: asClass(StockMovementRepoPrismaAudit).singleton(),
 
     paymentProvider: asClass(StripePaymentProvider).singleton(),
     invoiceGenerator: asClass(PdfInvoiceGenerator).singleton(),
