@@ -3,6 +3,9 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
+import { CategoryList } from './pages/CategoryList';
+import { CategoryCreate } from './pages/CategoryCreate';
+import { CategoryEdit } from './pages/CategoryEdit';
 import { Layout } from './components/Layout';
 
 const queryClient = new QueryClient({
@@ -43,6 +46,36 @@ function App() {
               <ProtectedRoute>
                 <Layout>
                   <Dashboard />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/mobile/categories"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <CategoryList />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/mobile/categories/create"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <CategoryCreate />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/mobile/categories/edit/:id"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <CategoryEdit />
                 </Layout>
               </ProtectedRoute>
             }
