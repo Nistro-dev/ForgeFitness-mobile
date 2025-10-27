@@ -4,8 +4,8 @@ import { Toaster } from 'sonner';
 import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
 import { CategoryList } from './pages/CategoryList';
-import { CategoryCreate } from './pages/CategoryCreate';
-import { CategoryEdit } from './pages/CategoryEdit';
+import { CategoryCreateNew } from './pages/CategoryCreateNew';
+import { CategoryDetail } from './pages/CategoryDetail';
 import { UserManagement } from './pages/UserManagement';
 import { UserDetail } from './pages/UserDetail';
 import { UserCreate } from './pages/UserCreate';
@@ -63,22 +63,22 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/mobile/categories/create"
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <CategoryCreate />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
                  <Route
-                   path="/mobile/categories/edit/:id"
+                   path="/mobile/categories/create"
                    element={
                      <ProtectedRoute>
                        <Layout>
-                         <CategoryEdit />
+                         <CategoryCreateNew />
+                       </Layout>
+                     </ProtectedRoute>
+                   }
+                 />
+                 <Route
+                   path="/mobile/categories/:id"
+                   element={
+                     <ProtectedRoute>
+                       <Layout>
+                         <CategoryDetail />
                        </Layout>
                      </ProtectedRoute>
                    }

@@ -70,9 +70,13 @@ export const CategoryList: React.FC = () => {
                   <th className="px-6 py-4 text-right text-sm font-medium text-slate-300">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-700">
-                {categories.map((category) => (
-                  <tr key={category.id} className="hover:bg-slate-700/50 transition-colors">
+                     <tbody className="divide-y divide-slate-700">
+                       {categories.map((category) => (
+                         <tr 
+                           key={category.id} 
+                           className="hover:bg-slate-700/50 transition-colors cursor-pointer"
+                           onClick={() => navigate(`/mobile/categories/${category.id}`)}
+                         >
                     <td className="px-6 py-4">
                       <div className="text-white font-medium">{category.name}</div>
                     </td>
@@ -109,27 +113,33 @@ export const CategoryList: React.FC = () => {
                         {new Date(category.createdAt).toLocaleDateString('fr-FR')}
                       </div>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => navigate(`/mobile/categories/edit/${category.id}`)}
-                          className="text-slate-300 hover:text-white hover:bg-slate-600"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDeleteClick(category)}
-                          className="text-red-400 hover:text-red-300 hover:bg-red-900/20"
-                          disabled={deleteCategory.isPending}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </td>
+                           <td className="px-6 py-4">
+                             <div className="flex justify-end gap-2">
+                               <Button
+                                 variant="ghost"
+                                 size="sm"
+                                 onClick={(e) => {
+                                   e.stopPropagation();
+                                   navigate(`/mobile/categories/${category.id}`);
+                                 }}
+                                 className="text-slate-300 hover:text-white hover:bg-slate-600"
+                               >
+                                 <Edit className="h-4 w-4" />
+                               </Button>
+                               <Button
+                                 variant="ghost"
+                                 size="sm"
+                                 onClick={(e) => {
+                                   e.stopPropagation();
+                                   handleDeleteClick(category);
+                                 }}
+                                 className="text-red-400 hover:text-red-300 hover:bg-red-900/20"
+                                 disabled={deleteCategory.isPending}
+                               >
+                                 <Trash2 className="h-4 w-4" />
+                               </Button>
+                             </div>
+                           </td>
                   </tr>
                 ))}
               </tbody>
