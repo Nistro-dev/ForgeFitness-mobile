@@ -55,12 +55,12 @@ export const menuItems: MenuItem[] = [
       { id: 'products-import', label: 'Import/Export', icon: Upload, path: '/products/import' }
     ]
   },
-  {
-    id: 'users',
-    label: 'Utilisateurs',
-    icon: Users,
-    path: '/users'
-  },
+        {
+          id: 'users',
+          label: 'Utilisateurs',
+          icon: Users,
+          path: '/users'
+        },
   {
     id: 'messages',
     label: 'Messages',

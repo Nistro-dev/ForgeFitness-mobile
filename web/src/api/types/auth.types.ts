@@ -5,12 +5,31 @@ export interface LoginDto {
 
 export interface AuthResponse {
   token: string;
+  expiresAt: string;
   user: User;
 }
 
 export interface User {
   id: string;
   email: string;
-  name: string;
-  role: string;
+  firstName: string;
+  lastName: string;
+  role: 'USER' | 'ADMIN' | 'COACH';
+}
+
+export interface IssueKeyDto {
+  email: string;
+  firstName: string;
+  lastName: string;
+}
+
+export interface IssueKeyResponse {
+  key: string;
+  expiresAt: string;
+  user: {
+    id: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+  };
 }

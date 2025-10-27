@@ -1,5 +1,5 @@
 import apiClient from '../client';
-import type { LoginDto, AuthResponse, User } from '../types/auth.types';
+import type { LoginDto, AuthResponse, User, IssueKeyDto, IssueKeyResponse } from '../types/auth.types';
 
 export const authApi = {
   login: async (credentials: LoginDto): Promise<AuthResponse> => {
@@ -14,5 +14,10 @@ export const authApi = {
 
   logout: async (): Promise<void> => {
     await apiClient.post('/auth/logout');
+  },
+
+  issueKey: async (userData: IssueKeyDto): Promise<IssueKeyResponse> => {
+    const { data } = await apiClient.post<IssueKeyResponse>('/admin/auth/issue-key', userData);
+    return data;
   },
 };

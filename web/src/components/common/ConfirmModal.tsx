@@ -1,7 +1,6 @@
 import React from 'react';
+import { AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertTriangle, X } from 'lucide-react';
 
 interface ConfirmModalProps {
   isOpen: boolean;
@@ -27,52 +26,43 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <Card className="bg-slate-800 border-slate-700 max-w-md w-full">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-          <div className="flex items-center space-x-2">
-            <AlertTriangle className="h-5 w-5 text-red-500" />
-            <CardTitle className="text-white">{title}</CardTitle>
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div className="fixed inset-0 bg-black/50" onClick={onClose} />
+      <div className="relative bg-slate-800 border border-slate-700 rounded-lg p-6 max-w-md w-full mx-4">
+        <div className="flex items-center space-x-3 mb-4">
+          <div className="flex-shrink-0">
+            <AlertTriangle className="h-6 w-6 text-red-500" />
           </div>
+          <h3 className="text-lg font-semibold text-white">{title}</h3>
+        </div>
+        
+        <p className="text-slate-300 mb-6">{message}</p>
+        
+        <div className="flex justify-end space-x-3">
           <Button
-            variant="ghost"
-            size="icon"
+            variant="outline"
             onClick={onClose}
-            className="text-slate-400 hover:text-white hover:bg-slate-700"
+            disabled={isLoading}
+            className="border-slate-600 text-slate-300 bg-slate-700 hover:bg-slate-600 hover:text-white"
           >
-            <X className="h-4 w-4" />
+            {cancelText}
           </Button>
-        </CardHeader>
-        <CardContent>
-          <CardDescription className="text-slate-300 mb-6">
-            {message}
-          </CardDescription>
-          <div className="flex gap-3 justify-end">
-            <Button
-              variant="outline"
-              onClick={onClose}
-              disabled={isLoading}
-              className="border-slate-600 text-slate-300 hover:bg-slate-700"
-            >
-              {cancelText}
-            </Button>
-            <Button
-              onClick={onConfirm}
-              disabled={isLoading}
-              className="bg-red-600 hover:bg-red-700 text-white"
-            >
-              {isLoading ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-                  Suppression...
-                </>
-              ) : (
-                confirmText
-              )}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+          <Button
+            onClick={onConfirm}
+            disabled={isLoading}
+            className="bg-red-600 hover:bg-red-700 text-white"
+          >
+            {isLoading ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                Suppression...
+              </>
+            ) : (
+              confirmText
+            )}
+          </Button>
+        </div>
+      </div>
     </div>
   );
 };

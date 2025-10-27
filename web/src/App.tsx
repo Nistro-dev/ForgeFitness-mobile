@@ -6,6 +6,7 @@ import { Dashboard } from './pages/Dashboard';
 import { CategoryList } from './pages/CategoryList';
 import { CategoryCreate } from './pages/CategoryCreate';
 import { CategoryEdit } from './pages/CategoryEdit';
+import { UserManagement } from './pages/UserManagement';
 import { Layout } from './components/Layout';
 
 const queryClient = new QueryClient({
@@ -70,17 +71,27 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/mobile/categories/edit/:id"
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <CategoryEdit />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                 <Route
+                   path="/mobile/categories/edit/:id"
+                   element={
+                     <ProtectedRoute>
+                       <Layout>
+                         <CategoryEdit />
+                       </Layout>
+                     </ProtectedRoute>
+                   }
+                 />
+                 <Route
+                   path="/users"
+                   element={
+                     <ProtectedRoute>
+                       <Layout>
+                         <UserManagement />
+                       </Layout>
+                     </ProtectedRoute>
+                   }
+                 />
+                 <Route path="/" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </BrowserRouter>
       <Toaster position="top-right" theme="dark" />
