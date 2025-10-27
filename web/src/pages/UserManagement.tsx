@@ -1,14 +1,13 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUsers, useCreateUser, useUpdateUser, useDeleteUser, useUpdatePassword, useUpdateRole, useUpdateStatus } from '@/hooks/api/useUsers';
-import { useIssueActivationKey } from '@/hooks/api/useActivationKey';
+import { useUsers, useDeleteUser, useIssueActivationKey } from '@/hooks/api/useUsers';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Edit, Trash2, User, Mail, Calendar, Shield, UserCheck, UserX, UserMinus, Save, X, Lock, Search, Filter, ChevronLeft, ChevronRight, Key, Eye } from 'lucide-react';
+import { Plus, User, Mail, Calendar, Shield, UserCheck, UserX, UserMinus, Search, Filter, ChevronLeft, ChevronRight, Key, Trash2 } from 'lucide-react';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { ConfirmModal } from '@/components/common/ConfirmModal';
 import { toast } from 'sonner';
@@ -16,16 +15,9 @@ import { toast } from 'sonner';
 export const UserManagement: React.FC = () => {
   const navigate = useNavigate();
   const { data: users, isLoading, error } = useUsers();
-  const createUser = useCreateUser();
-  const updateUser = useUpdateUser();
   const deleteUser = useDeleteUser();
-  const updatePassword = useUpdatePassword();
-  const updateRole = useUpdateRole();
-  const updateStatus = useUpdateStatus();
   const issueActivationKey = useIssueActivationKey();
 
-  const [showForm, setShowForm] = useState(false);
-  const [editingUser, setEditingUser] = useState<any>(null);
   const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; user: any }>({
     isOpen: false,
     user: null,
@@ -37,14 +29,6 @@ export const UserManagement: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'ACTIVE' | 'DISABLED' | 'BANNED'>('ALL');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
-
-  // Form states
-  const [email, setEmail] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [password, setPassword] = useState('');
-  const [role, setRole] = useState<'USER' | 'ADMIN' | 'COACH'>('USER');
-  const [status, setStatus] = useState<'ACTIVE' | 'DISABLED' | 'BANNED'>('ACTIVE');
 
   // Filtered and paginated users
   const filteredUsers = useMemo(() => {
@@ -68,102 +52,11 @@ export const UserManagement: React.FC = () => {
   const endIndex = startIndex + itemsPerPage;
   const paginatedUsers = filteredUsers.slice(startIndex, endIndex);
 
-  const resetForm = () => {
-    setEmail('');
-    setFirstName('');
-    setLastName('');
-    setPassword('');
-    setRole('USER');
-    setStatus('ACTIVE');
-    setEditingUser(null);
-    setShowForm(false);
-  };
-
   const resetFilters = () => {
     setSearchTerm('');
     setRoleFilter('ALL');
     setStatusFilter('ALL');
     setCurrentPage(1);
-  };
-
-  const handleCreateClick = () => {
-    resetForm();
-    setShowForm(true);
-  };
-
-  const handleEditClick = (user: any) => {
-    setEmail(user.email);
-    setFirstName(user.firstName);
-    setLastName(user.lastName);
-    setRole(user.role);
-    setStatus(user.status);
-    setPassword('');
-    setEditingUser(user);
-    setShowForm(true);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!email || !firstName || !lastName) {
-      toast.error('Veuillez remplir tous les champs obligatoires');
-      return;
-    }
-
-    try {
-      if (editingUser) {
-        await updateUser.mutateAsync({
-          id: editingUser.id,
-          updatedUser: { email, firstName, lastName }
-        });
-      } else {
-        await createUser.mutateAsync({
-          email,
-          firstName,
-          lastName,
-          password: password || undefined,
-          role,
-          status,
-        });
-      }
-      resetForm();
-    } catch (error) {
-      toast.error('Erreur lors de la sauvegarde');
-    }
-  };
-
-  const handlePasswordUpdate = async () => {
-    if (!password || !editingUser) return;
-
-    try {
-      await updatePassword.mutateAsync({ id: editingUser.id, password });
-      setPassword('');
-      toast.success('Mot de passe mis à jour');
-    } catch (error) {
-      toast.error('Erreur lors de la mise à jour du mot de passe');
-    }
-  };
-
-  const handleRoleUpdate = async () => {
-    if (!editingUser) return;
-
-    try {
-      await updateRole.mutateAsync({ id: editingUser.id, role });
-      toast.success('Rôle mis à jour');
-    } catch (error) {
-      toast.error('Erreur lors de la mise à jour du rôle');
-    }
-  };
-
-  const handleStatusUpdate = async () => {
-    if (!editingUser) return;
-
-    try {
-      await updateStatus.mutateAsync({ id: editingUser.id, status });
-      toast.success('Statut mis à jour');
-    } catch (error) {
-      toast.error('Erreur lors de la mise à jour du statut');
-    }
   };
 
   const handleDeleteClick = (user: any) => {
@@ -206,12 +99,11 @@ export const UserManagement: React.FC = () => {
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'ACTIVE': return <UserCheck className="h-3 w-3" />;
-      case 'DISABLED': return <UserMinus className="h-3 w-3" />;
-      case 'BANNED': return <UserX className="h-3 w-3" />;
-      default: return <User className="h-3 w-3" />;
+  const getRoleColor = (role: string) => {
+    switch (role) {
+      case 'ADMIN': return 'bg-red-600 hover:bg-red-700';
+      case 'COACH': return 'bg-blue-600 hover:bg-blue-700';
+      default: return 'bg-slate-600 hover:bg-slate-700';
     }
   };
 
@@ -235,7 +127,7 @@ export const UserManagement: React.FC = () => {
           <p className="text-slate-300 mt-2">Gérez les utilisateurs du système</p>
         </div>
         <Button
-          onClick={handleCreateClick}
+          onClick={() => navigate('/users/create')}
           className="bg-blue-600 hover:bg-blue-700 text-white"
         >
           <Plus className="h-4 w-4 mr-2" />
@@ -355,290 +247,6 @@ export const UserManagement: React.FC = () => {
         </CardContent>
       </Card>
 
-      {showForm && (
-        <Card className="bg-slate-800 border-slate-700">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center justify-between">
-              <div className="flex items-center">
-                <User className="h-5 w-5 mr-2" />
-                {editingUser ? 'Modifier l\'utilisateur' : 'Nouvel utilisateur'}
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={resetForm}
-                className="text-slate-400 hover:text-white"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </CardTitle>
-            <CardDescription className="text-slate-400">
-              {editingUser ? 'Modifiez les informations de l\'utilisateur' : 'Remplissez les informations pour créer un nouvel utilisateur'}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="firstName" className="text-slate-200">Prénom *</Label>
-                  <Input
-                    id="firstName"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    required
-                    className="bg-slate-700 border-slate-600 text-slate-50 placeholder:text-slate-400"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="lastName" className="text-slate-200">Nom *</Label>
-                  <Input
-                    id="lastName"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    required
-                    className="bg-slate-700 border-slate-600 text-slate-50 placeholder:text-slate-400"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-slate-200 flex items-center">
-                  <Mail className="h-4 w-4 mr-2" />
-                  Email *
-                </Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="bg-slate-700 border-slate-600 text-slate-50 placeholder:text-slate-400"
-                />
-              </div>
-
-              {!editingUser && (
-                <div className="space-y-2">
-                  <Label htmlFor="password" className="text-slate-200 flex items-center">
-                    <Lock className="h-4 w-4 mr-2" />
-                    Mot de passe
-                  </Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="bg-slate-700 border-slate-600 text-slate-50 placeholder:text-slate-400"
-                    placeholder="Laissez vide pour générer automatiquement"
-                  />
-                </div>
-              )}
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="role" className="text-slate-200 flex items-center">
-                    <Shield className="h-4 w-4 mr-2" />
-                    Rôle
-                  </Label>
-                  <Select value={role} onValueChange={(value: 'USER' | 'ADMIN' | 'COACH') => setRole(value)}>
-                    <SelectTrigger className="bg-slate-700 border-slate-600 text-slate-50">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-slate-800 border-slate-700">
-                      <SelectItem value="USER" className="text-slate-200 hover:bg-slate-700">
-                        <div className="flex items-center">
-                          <User className="h-4 w-4 mr-2" />
-                          Utilisateur
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="COACH" className="text-slate-200 hover:bg-slate-700">
-                        <div className="flex items-center">
-                          <UserCheck className="h-4 w-4 mr-2" />
-                          Coach
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="ADMIN" className="text-slate-200 hover:bg-slate-700">
-                        <div className="flex items-center">
-                          <Shield className="h-4 w-4 mr-2" />
-                          Administrateur
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="status" className="text-slate-200">Statut</Label>
-                  <Select value={status} onValueChange={(value: 'ACTIVE' | 'DISABLED' | 'BANNED') => setStatus(value)}>
-                    <SelectTrigger className="bg-slate-700 border-slate-600 text-slate-50">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-slate-800 border-slate-700">
-                      <SelectItem value="ACTIVE" className="text-slate-200 hover:bg-slate-700">
-                        <div className="flex items-center">
-                          <UserCheck className="h-4 w-4 mr-2 text-green-500" />
-                          Actif
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="DISABLED" className="text-slate-200 hover:bg-slate-700">
-                        <div className="flex items-center">
-                          <UserMinus className="h-4 w-4 mr-2 text-yellow-500" />
-                          Désactivé
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="BANNED" className="text-slate-200 hover:bg-slate-700">
-                        <div className="flex items-center">
-                          <UserX className="h-4 w-4 mr-2 text-red-500" />
-                          Banni
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              {editingUser && (
-                <div className="border-t border-slate-700 pt-6 space-y-6">
-                  <div className="space-y-2">
-                    <Label className="text-slate-200 flex items-center">
-                      <Lock className="h-4 w-4 mr-2" />
-                      Mot de passe
-                    </Label>
-                    <div className="flex space-x-2">
-                      <Input
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="Nouveau mot de passe"
-                        className="bg-slate-700 border-slate-600 text-slate-50 placeholder:text-slate-400"
-                      />
-                      <Button
-                        type="button"
-                        onClick={handlePasswordUpdate}
-                        disabled={updatePassword.isPending || !password}
-                        className="bg-orange-600 hover:bg-orange-700 text-white"
-                      >
-                        {updatePassword.isPending ? '...' : 'Mettre à jour'}
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <Label className="text-slate-200 flex items-center">
-                        <Shield className="h-4 w-4 mr-2" />
-                        Rôle
-                      </Label>
-                      <div className="flex space-x-2">
-                        <Select value={role} onValueChange={(value: 'USER' | 'ADMIN' | 'COACH') => setRole(value)}>
-                          <SelectTrigger className="bg-slate-700 border-slate-600 text-slate-50">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent className="bg-slate-800 border-slate-700">
-                            <SelectItem value="USER" className="text-slate-200 hover:bg-slate-700">
-                              <div className="flex items-center">
-                                <User className="h-4 w-4 mr-2" />
-                                Utilisateur
-                              </div>
-                            </SelectItem>
-                            <SelectItem value="COACH" className="text-slate-200 hover:bg-slate-700">
-                              <div className="flex items-center">
-                                <UserCheck className="h-4 w-4 mr-2" />
-                                Coach
-                              </div>
-                            </SelectItem>
-                            <SelectItem value="ADMIN" className="text-slate-200 hover:bg-slate-700">
-                              <div className="flex items-center">
-                                <Shield className="h-4 w-4 mr-2" />
-                                Administrateur
-                              </div>
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <Button
-                          type="button"
-                          onClick={handleRoleUpdate}
-                          disabled={updateRole.isPending}
-                          className="bg-purple-600 hover:bg-purple-700 text-white"
-                        >
-                          {updateRole.isPending ? '...' : 'Mettre à jour'}
-                        </Button>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label className="text-slate-200">Statut</Label>
-                      <div className="flex space-x-2">
-                        <Select value={status} onValueChange={(value: 'ACTIVE' | 'DISABLED' | 'BANNED') => setStatus(value)}>
-                          <SelectTrigger className="bg-slate-700 border-slate-600 text-slate-50">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent className="bg-slate-800 border-slate-700">
-                            <SelectItem value="ACTIVE" className="text-slate-200 hover:bg-slate-700">
-                              <div className="flex items-center">
-                                <UserCheck className="h-4 w-4 mr-2 text-green-500" />
-                                Actif
-                              </div>
-                            </SelectItem>
-                            <SelectItem value="DISABLED" className="text-slate-200 hover:bg-slate-700">
-                              <div className="flex items-center">
-                                <UserMinus className="h-4 w-4 mr-2 text-yellow-500" />
-                                Désactivé
-                              </div>
-                            </SelectItem>
-                            <SelectItem value="BANNED" className="text-slate-200 hover:bg-slate-700">
-                              <div className="flex items-center">
-                                <UserX className="h-4 w-4 mr-2 text-red-500" />
-                                Banni
-                              </div>
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <Button
-                          type="button"
-                          onClick={handleStatusUpdate}
-                          disabled={updateStatus.isPending}
-                          className="bg-indigo-600 hover:bg-indigo-700 text-white"
-                        >
-                          {updateStatus.isPending ? '...' : 'Mettre à jour'}
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              <div className="flex justify-end space-x-2">
-                <Button
-                  type="submit"
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
-                  disabled={createUser.isPending || updateUser.isPending}
-                >
-                  {(createUser.isPending || updateUser.isPending) ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-                      {editingUser ? 'Mise à jour...' : 'Création...'}
-                    </>
-                  ) : (
-                    <>
-                      <Save className="h-4 w-4 mr-2" />
-                      {editingUser ? 'Sauvegarder' : 'Créer l\'utilisateur'}
-                    </>
-                  )}
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={resetForm}
-                  className="border-red-600 text-red-400 bg-red-900/20 hover:bg-red-800 hover:text-red-200 hover:border-red-500"
-                >
-                  Annuler
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
-      )}
-
       {filteredUsers.length > 0 ? (
         <div className="bg-slate-800 border border-slate-700 rounded-lg overflow-hidden">
           <div className="overflow-x-auto">
@@ -655,7 +263,11 @@ export const UserManagement: React.FC = () => {
               </thead>
               <tbody className="divide-y divide-slate-700">
                 {paginatedUsers.map((user) => (
-                  <tr key={user.id} className="hover:bg-slate-700/50 transition-colors">
+                  <tr 
+                    key={user.id} 
+                    className="hover:bg-slate-700/50 transition-colors cursor-pointer"
+                    onClick={() => navigate(`/users/${user.id}`)}
+                  >
                     <td className="px-6 py-4">
                       <div className="flex items-center space-x-3">
                         <div className="w-8 h-8 bg-slate-700 rounded-full flex items-center justify-center">
@@ -673,18 +285,21 @@ export const UserManagement: React.FC = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex items-center text-slate-300">
-                        {getRoleIcon(user.role)}
-                        <span className="ml-2 capitalize">{user.role.toLowerCase()}</span>
-                      </div>
+                      <Badge className={getRoleColor(user.role)}>
+                        <span className="flex items-center">
+                          {getRoleIcon(user.role)}
+                          <span className="ml-1">{user.role}</span>
+                        </span>
+                      </Badge>
                     </td>
                     <td className="px-6 py-4">
-                      <Badge 
-                        variant="default"
-                        className={getStatusColor(user.status)}
-                      >
-                        {getStatusIcon(user.status)}
-                        <span className="ml-1 capitalize">{user.status.toLowerCase()}</span>
+                      <Badge className={getStatusColor(user.status)}>
+                        <span className="flex items-center">
+                          {user.status === 'ACTIVE' && <UserCheck className="h-3 w-3 mr-1" />}
+                          {user.status === 'DISABLED' && <UserMinus className="h-3 w-3 mr-1" />}
+                          {user.status === 'BANNED' && <UserX className="h-3 w-3 mr-1" />}
+                          <span>{user.status}</span>
+                        </span>
                       </Badge>
                     </td>
                     <td className="px-6 py-4">
@@ -698,24 +313,10 @@ export const UserManagement: React.FC = () => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => navigate(`/users/${user.id}`)}
-                          className="text-green-400 hover:text-green-300 hover:bg-green-900/20"
-                          title="Voir les détails"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleEditClick(user)}
-                          className="text-slate-300 hover:text-white hover:bg-slate-600"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleIssueActivationKey(user)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleIssueActivationKey(user);
+                          }}
                           className="text-blue-400 hover:text-blue-300 hover:bg-blue-900/20"
                           disabled={issueActivationKey.isPending}
                           title="Générer un code d'activation"
@@ -725,7 +326,10 @@ export const UserManagement: React.FC = () => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleDeleteClick(user)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteClick(user);
+                          }}
                           className="text-red-400 hover:text-red-300 hover:bg-red-900/20"
                           disabled={deleteUser.isPending}
                         >
@@ -822,7 +426,7 @@ export const UserManagement: React.FC = () => {
           <div className="flex justify-center space-x-3">
             {users && users.length === 0 ? (
               <Button
-                onClick={handleCreateClick}
+                onClick={() => navigate('/users/create')}
                 className="bg-blue-600 hover:bg-blue-700 text-white"
               >
                 <Plus className="h-4 w-4 mr-2" />
@@ -838,7 +442,7 @@ export const UserManagement: React.FC = () => {
                   Réinitialiser les filtres
                 </Button>
                 <Button
-                  onClick={handleCreateClick}
+                  onClick={() => navigate('/users/create')}
                   className="bg-blue-600 hover:bg-blue-700 text-white"
                 >
                   <Plus className="h-4 w-4 mr-2" />
