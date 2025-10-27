@@ -65,7 +65,7 @@ export const CategoryDetail: React.FC = () => {
     try {
       await updateCategory.mutateAsync({
         id: category.id,
-        updatedCategory: editData,
+        data: editData,
       });
       toast.success('Catégorie mise à jour avec succès');
       setIsEditing(false);
