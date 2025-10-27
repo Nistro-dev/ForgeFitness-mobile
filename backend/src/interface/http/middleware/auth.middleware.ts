@@ -7,6 +7,7 @@ export interface AuthenticatedRequest extends FastifyRequest {
     id: string;
     sub: string;
     sid: string;
+    role: string;
   };
 }
 
@@ -33,6 +34,7 @@ export async function authMiddleware(
       id: decoded.sub,
       sub: decoded.sub,
       sid: decoded.sid,
+      role: decoded.role,
     };
 
   } catch {

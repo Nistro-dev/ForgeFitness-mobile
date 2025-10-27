@@ -40,6 +40,9 @@ const EnvSchema = z.object({
     .preprocess((v) => (typeof v === 'string' ? v.toLowerCase() : v), z.enum(['true','false']).default('true'))
     .transform((v) => v === 'true'),
   QR_REUSE_DEBOUNCE_MS: z.coerce.number().default(1000),
+
+  STRIPE_SECRET_KEY: z.string().optional(),
+  STRIPE_WEBHOOK_SECRET: z.string().optional(),
 })
 .superRefine((val, ctx) => {
   const isProd = val.NODE_ENV === 'production';

@@ -11,6 +11,12 @@ enum Platform {
   IOS
 }
 
+enum UserRole {
+  USER
+  COACH
+  ADMIN
+}
+
 enum UserStatus {
   ACTIVE
   DISABLED
@@ -25,12 +31,35 @@ enum QrValidationResult {
   WRONG_AUDIENCE
 }
 
+enum OrderStatus {
+  PENDING
+  PAID
+  CANCELLED
+  REFUNDED
+}
+
+enum StockMovementType {
+  IN
+  OUT
+  SALE
+  CORRECTION
+  RETURN
+}
+
+enum PaymentMethod {
+  CARD
+  APPLE_PAY
+  GOOGLE_PAY
+}
+
 
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
   firstName String
   lastName  String
+  password  String?  // Mot de passe pour les admins/coachs
+  role      UserRole @default(USER)
   status    UserStatus @default(ACTIVE)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -47,6 +76,11 @@ model User {
   devices        Device[]        @relation("UserDevices")
   sessions       Session[]       @relation("UserSessions")
   qrValidationLogs QrValidationLog[] @relation("UserQrValidationLogs")
+  
+  createdProducts Product[] @relation("ProductCreator")
+  orders          Order[]   @relation("UserOrders")
+  stockMovements  StockMovement[] @relation("StockMovementCreator")
+  auditLogs       AuditLog[] @relation("AuditLogUser")
 }
 
 model ActivationKey {
@@ -122,4 +156,196 @@ model QrValidationLog {
 
   @@index([gateId, ts])
   @@index([userId, ts])
+}
+
+model Category {
+  id           String    @id @default(cuid())
+  name         String
+  slug         String    @unique
+  displayOrder Int       @default(0)
+  active       Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  products Product[]
+
+  @@index([active, displayOrder])
+}
+
+model Product {
+  id               String   @id @default(cuid())
+  name             String
+  slug             String   @unique
+  description      String?
+  shortDescription String?
+  categoryId       String
+  priceHT          Decimal  @db.Decimal(10, 2)
+  tvaRate          Decimal  @db.Decimal(4, 2)
+  sku              String   @unique
+  stockQuantity    Int      @default(0)
+  isInfiniteStock  Boolean  @default(true)
+  minStock         Int      @default(5)
+  active           Boolean  @default(true)
+  archived         Boolean  @default(false)
+  displayOrder     Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  createdBy        String
+
+  category       Category        @relation(fields: [categoryId], references: [id])
+  creator        User            @relation("ProductCreator", fields: [createdBy], references: [id])
+  images         ProductImage[]
+  orderItems     OrderItem[]
+  stockMovements StockMovement[]
+  stockAlerts    StockAlert[]
+
+  @@index([categoryId, active, displayOrder])
+  @@index([active])
+  @@index([archived])
+  @@index([createdBy])
+}
+
+model ProductImage {
+  id           String   @id @default(cuid())
+  productId    String
+  url          String
+  alt          String
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId, displayOrder])
+}
+
+model Order {
+  id            String        @id @default(cuid())
+  orderNumber   String        @unique
+  userId        String
+  totalHT       Decimal       @db.Decimal(10, 2)
+  totalTTC      Decimal       @db.Decimal(10, 2)
+  tvaTotal      Decimal       @db.Decimal(10, 2)
+  paymentMethod PaymentMethod
+  status        OrderStatus   @default(PENDING)
+  paidAt        DateTime?
+  invoiceNumber String?
+  notes         String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  user        User                 @relation("UserOrders", fields: [userId], references: [id])
+  items       OrderItem[]
+  invoice     Invoice?
+  transaction PaymentTransaction?
+
+  @@index([userId, createdAt])
+  @@index([status, createdAt])
+  @@index([orderNumber])
+}
+
+model OrderItem {
+  id       String  @id @default(cuid())
+  orderId  String
+  productId String
+  quantity Int
+  priceHT  Decimal @db.Decimal(10, 2)
+  tvaRate  Decimal @db.Decimal(4, 2)
+  totalHT  Decimal @db.Decimal(10, 2)
+  totalTTC Decimal @db.Decimal(10, 2)
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+model StockMovement {
+  id        String            @id @default(cuid())
+  productId String
+  type      StockMovementType
+  quantity  Int
+  reason    String
+  orderId   String?
+  createdAt DateTime          @default(now())
+  createdBy String
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  creator User    @relation("StockMovementCreator", fields: [createdBy], references: [id])
+
+  @@index([productId, createdAt])
+  @@index([createdBy])
+}
+
+model Invoice {
+  id            String   @id @default(cuid())
+  invoiceNumber String   @unique
+  orderId       String   @unique
+  userId        String
+  totalHT       Decimal  @db.Decimal(10, 2)
+  totalTTC      Decimal  @db.Decimal(10, 2)
+  tvaTotal      Decimal  @db.Decimal(10, 2)
+  pdfUrl        String?
+  sentAt        DateTime?
+  createdAt     DateTime @default(now())
+
+  order Order @relation(fields: [orderId], references: [id])
+
+  @@index([invoiceNumber])
+  @@index([userId, createdAt])
+}
+
+model InvoiceSequence {
+  id   String @id @default(cuid())
+  year Int    @unique
+  last Int    @default(0)
+}
+
+model PaymentTransaction {
+  id                     String   @id @default(cuid())
+  orderId                String   @unique
+  stripePaymentIntentId  String   @unique
+  amount                 Decimal  @db.Decimal(10, 2)
+  currency               String   @default("EUR")
+  status                 String
+  metadata               Json?
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id])
+
+  @@index([stripePaymentIntentId])
+  @@index([status])
+}
+
+model StockAlert {
+  id         String    @id @default(cuid())
+  productId  String
+  triggered  Boolean   @default(true)
+  resolved   Boolean   @default(false)
+  resolvedAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId, resolved])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  entity    String
+  entityId  String
+  oldValue  Json?
+  newValue  Json?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  user User? @relation("AuditLogUser", fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([entity, entityId, createdAt])
+  @@index([userId, createdAt])
 }

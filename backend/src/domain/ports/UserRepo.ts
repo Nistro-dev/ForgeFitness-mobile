@@ -27,4 +27,6 @@ export interface UserRepo {
     sessionId?: string | null;
     activationKeyId?: string | null;
   }): Promise<void>;
+
+  setPassword(userId: string, password: string): Promise<void>;
 }

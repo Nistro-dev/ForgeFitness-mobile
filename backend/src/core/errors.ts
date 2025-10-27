@@ -41,3 +41,9 @@ export class ConflictError extends AppError {
     super(msg, 'CONFLICT', 409, details);
   }
 }
+
+export type DomainError = {
+  code: string;
+  message: string;
+  details?: unknown;
+};

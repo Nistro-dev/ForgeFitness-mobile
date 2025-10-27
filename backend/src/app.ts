@@ -2,10 +2,11 @@ import Fastify from "fastify";
 import { httpErrorHandler } from "@core/httpErrorHandler";
 import { securityPlugins } from "@if/http/plugins/security";
 import { diPlugin } from "@if/http/plugins/di";
-import { devRoutes } from "@if";
-import authRoutes from "@if/http/routes/auth.routes";
-import qrRoutes from "@if/http/routes/qr.routes";
-import healthRoutes from "@if/http/routes/health.routes";
+import publicRoutes from "@if/http/routes/public";
+import mobileRoutes from "@if/http/routes/mobile";
+import adminRoutes from "@if/http/routes/admin";
+import devRoutes from "@if/http/routes/dev";
+import webhookRoutes from "@if/http/routes/webhook.routes";
 import { makeContainer } from "@di/container";
 
 export async function buildApp() {
@@ -33,10 +34,14 @@ export async function buildApp() {
     app.log.error({ err: e }, "SMTP verification failed");
   }
 
-  await authRoutes(app);
-  await qrRoutes(app);
-  await healthRoutes(app);
-  await devRoutes(app);
+  await app.register(publicRoutes, { prefix: '/api/public' });
+  await app.register(mobileRoutes, { prefix: '/api/mobile' });
+  await app.register(adminRoutes, { prefix: '/api/admin' });
+  await app.register(webhookRoutes, { prefix: '/api/webhooks' });
+  
+  if (process.env.NODE_ENV === 'development') {
+    await app.register(devRoutes, { prefix: '/api/dev' });
+  }
 
   app.setErrorHandler(httpErrorHandler);
   return app;

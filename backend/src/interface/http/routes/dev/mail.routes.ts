@@ -1,8 +1,8 @@
-import { FastifyInstance } from "fastify";
-import { z } from "zod";
+import { FastifyInstance } from 'fastify';
+import { z } from 'zod';
 
-export async function devRoutes(app: FastifyInstance) {
-  app.post("/dev/mail-test", async (req, reply) => {
+export default async function mailRoutes(app: FastifyInstance) {
+  app.post('/test', async (req, reply) => {
     const body = z
       .object({
         to: z.string().email(),
@@ -13,8 +13,8 @@ export async function devRoutes(app: FastifyInstance) {
       .parse(req.body);
 
     const mailer = app.diContainer.resolve(
-      "mailer"
-    ) as import("../../../domain/ports/Mailer").Mailer;
+      'mailer'
+    ) as import('../../../../domain/ports/Mailer').Mailer;
 
     await mailer.send({
       to: { email: body.to },
@@ -26,3 +26,4 @@ export async function devRoutes(app: FastifyInstance) {
     return reply.code(204).send();
   });
 }
+

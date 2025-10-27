@@ -52,4 +52,11 @@ export class UserRepoPrisma implements UserRepo {
       },
     });
   }
+
+  async setPassword(userId: string, password: string) {
+    await prisma.user.update({
+      where: { id: userId },
+      data: { password },
+    });
+  }
 }

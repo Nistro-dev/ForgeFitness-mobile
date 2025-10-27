@@ -23,6 +23,7 @@ type Output = {
     email: string;
     firstName: string;
     lastName: string;
+    role: string;
   };
 };
 
@@ -76,7 +77,7 @@ export class ActivateWithKeyUseCase {
     });
 
     const token = jwt.sign(
-      { sub: user.id, sid: session.id },
+      { sub: user.id, sid: session.id, role: user.role },
       env.JWT_SECRET,
       { expiresIn: `${sessionTtlDays}d`, issuer: 'forge-fitness' },
     );
@@ -84,7 +85,7 @@ export class ActivateWithKeyUseCase {
     return {
       token,
       expiresAt: addDays(now, sessionTtlDays).toISOString(),
-      user: { id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName },
+      user: { id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName, role: user.role },
     };
   }
 }
