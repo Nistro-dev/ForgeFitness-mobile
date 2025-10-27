@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
-export const CategoryCreate: React.FC = () => {
+export const CategoryCreateNew: React.FC = () => {
   const navigate = useNavigate();
   const createCategory = useCreateCategory();
 
