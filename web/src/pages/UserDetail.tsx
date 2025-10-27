@@ -465,7 +465,7 @@ export const UserDetail: React.FC = () => {
             <CardHeader>
               <CardTitle className="text-red-400 flex items-center">
                 <Trash2 className="h-5 w-5 mr-2" />
-                Zone de danger
+                Supprimer un Utilisateur
               </CardTitle>
               <CardDescription className="text-slate-400">
                 Supprimer définitivement cet utilisateur

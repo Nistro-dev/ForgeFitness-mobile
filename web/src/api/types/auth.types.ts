@@ -24,12 +24,7 @@ export interface IssueKeyDto {
 }
 
 export interface IssueKeyResponse {
-  key: string;
+  userId: string;
+  email: string;
   expiresAt: string;
-  user: {
-    id: string;
-    email: string;
-    firstName: string;
-    lastName: string;
-  };
 }

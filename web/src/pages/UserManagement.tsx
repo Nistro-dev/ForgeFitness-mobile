@@ -1,14 +1,13 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUsers, useDeleteUser } from '@/hooks/api/useUsers';
-import { useIssueActivationKey } from '@/hooks/api/useActivationKey';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, User, Mail, Calendar, Shield, UserCheck, UserX, UserMinus, Search, Filter, ChevronLeft, ChevronRight, Key, Trash2 } from 'lucide-react';
+import { Plus, User, Mail, Calendar, Shield, UserCheck, UserX, UserMinus, Search, Filter, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { ConfirmModal } from '@/components/common/ConfirmModal';
 import { toast } from 'sonner';
@@ -17,7 +16,6 @@ export const UserManagement: React.FC = () => {
   const navigate = useNavigate();
   const { data: users, isLoading, error } = useUsers();
   const deleteUser = useDeleteUser();
-  const issueActivationKey = useIssueActivationKey();
 
   const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; user: any }>({
     isOpen: false,
@@ -78,18 +76,6 @@ export const UserManagement: React.FC = () => {
 
   const handleDeleteCancel = () => {
     setDeleteModal({ isOpen: false, user: null });
-  };
-
-  const handleIssueActivationKey = async (user: any) => {
-    try {
-      await issueActivationKey.mutateAsync({
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-      });
-    } catch (error: any) {
-      toast.error(`Erreur lors de la génération du code : ${error.message}`);
-    }
   };
 
   const getRoleIcon = (role: string) => {
@@ -311,19 +297,6 @@ export const UserManagement: React.FC = () => {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleIssueActivationKey(user);
-                          }}
-                          className="text-blue-400 hover:text-blue-300 hover:bg-blue-900/20"
-                          disabled={issueActivationKey.isPending}
-                          title="Générer un code d'activation"
-                        >
-                          <Key className="h-4 w-4" />
-                        </Button>
                         <Button
                           variant="ghost"
                           size="sm"
